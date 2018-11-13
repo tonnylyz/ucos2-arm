@@ -15,10 +15,10 @@ void App_Main() {
 void App_TaskStart(void *p_arg) {
     uart_puts("App_TaskStart entered\n");
 
-#if (OS_TASK_STAT_EN > 0u)
-    OSStatInit();                                               /* Determine CPU capacity                               */
-    uart_puts("OSStatInit done\n");
-#endif
+//#if (OS_TASK_STAT_EN > 0u)
+//    OSStatInit();                                               /* Determine CPU capacity                               */
+//    uart_puts("OSStatInit done\n");
+//#endif
 
 
     App_Main();
@@ -34,7 +34,7 @@ void App_TaskDelHook(OS_TCB *ptcb) {
 }
 
 void App_TaskIdleHook(void) {
-    uart_puts("App_TaskIdleHook called\n");
+    //uart_puts("App_TaskIdleHook called\n");
 }
 
 void App_TaskStatHook(void) {

@@ -177,7 +177,6 @@ void uart_init()
     int baud_rate = 115200;
 
     uint32_t divisor = 0; /* baud rate divisor */
-    uint8_t mdc = 0;
 
     uart[which].port = port;
     uart[which].irq = 0;

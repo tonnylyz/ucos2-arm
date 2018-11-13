@@ -60,7 +60,6 @@ static u32 BSP_PageTable[4096] __attribute__ ((aligned (16*1024)));
 void page_table_init() {
     u32 vaddr;
     u32 paddr;
-    u32 i;
     u32 *pt_phys = (u32 *) BSP_PageTable;
 
     for (paddr = BSP_SDRAM_PHYS_BASE, vaddr = BSP_SDRAM_VIRT_BASE;

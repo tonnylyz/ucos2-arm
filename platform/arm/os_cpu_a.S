@@ -337,6 +337,10 @@ OS_CPU_ARM_ExceptUndefInstrHndlr:
     STMFD   SP!, {R0-R12, LR}                                   @ Push working registers.
     MOV     R2, LR                                              @ Save link register.
     MOV     R0, #OS_CPU_ARM_EXCEPT_UND                          @ Set exception ID to OS_CPU_ARM_EXCEPT_UNDEF_INSTR.
+
+    // TODO: REMOVE THIS DEBUG BRANCH [LIANG]
+    B cpu_undef_ins
+
     B            OS_CPU_ARM_ExceptHndlr                         @ Branch to global exception handler.
 
 
@@ -353,6 +357,10 @@ OS_CPU_ARM_ExceptSwiHndlr:
     STMFD   SP!, {R0-R12, LR}                                   @ Push working registers.
     MOV     R2, LR                                              @ Save link register.
     MOV     R0, #OS_CPU_ARM_EXCEPT_SWI                          @ Set exception ID to OS_CPU_ARM_EXCEPT_SWI.
+
+    // TODO: REMOVE THIS DEBUG BRANCH [LIANG]
+    B cpu_svc
+
     B            OS_CPU_ARM_ExceptHndlr                         @ Branch to global exception handler.
 
 
@@ -369,6 +377,10 @@ OS_CPU_ARM_ExceptPrefetchAbortHndlr:
     STMFD   SP!, {R0-R12, LR}                                   @ Push working registers.
     MOV     R2, LR                                              @ Save link register.
     MOV     R0, #OS_CPU_ARM_EXCEPT_ABORT_PREFETCH               @ Set exception ID to OS_CPU_ARM_EXCEPT_PREFETCH_ABORT.
+
+    // TODO: REMOVE THIS DEBUG BRANCH [LIANG]
+    B cpu_prefetch_abort
+
     B            OS_CPU_ARM_ExceptHndlr                         @ Branch to global exception handler.
 
 
@@ -385,6 +397,10 @@ OS_CPU_ARM_ExceptDataAbortHndlr:
     STMFD   SP!, {R0-R12, LR}                                   @ Push working registers.
     MOV     R2, LR                                              @ Save link register.
     MOV     R0, #OS_CPU_ARM_EXCEPT_ABORT_DATA                   @ Set exception ID to OS_CPU_ARM_EXCEPT_DATA_ABORT.
+
+    // TODO: REMOVE THIS DEBUG BRANCH [LIANG]
+    B cpu_data_abort
+
     B            OS_CPU_ARM_ExceptHndlr                         @ Branch to global exception handler.
 
 
@@ -402,6 +418,10 @@ OS_CPU_ARM_ExceptFiqHndlr:
     STMFD   SP!, {R0-R12, LR}                                   @ Push working registers.
     MOV     R2, LR                                              @ Save link register.
     MOV     R0, #OS_CPU_ARM_EXCEPT_FIQ                          @ Set exception ID to OS_CPU_ARM_EXCEPT_FIQ.
+
+    // TODO: REMOVE THIS DEBUG BRANCH [LIANG]
+    B cpu_fiq
+
     B            OS_CPU_ARM_ExceptHndlr                         @ Branch to global exception handler.
 
 @********************************************************************************************************

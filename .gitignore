@@ -1,0 +1,15 @@
+.idea/*
+
+ucosii.a
+ucosii.axf
+ucosii.bin
+ucosii.map
+zImage
+
+cmake-build-debug/*
+CMakeLists.txt
+
+.DS_Store
+._.DS_Store
+**/.DS_Store
+**/._.DS_Store

@@ -827,11 +827,9 @@ void  OSStart (void)
 {
     if (OSRunning == OS_FALSE) {
         OS_SchedNew();                               /* Find highest priority's task priority number   */
-        uart_puts("sched new finished\n");
         OSPrioCur     = OSPrioHighRdy;
         OSTCBHighRdy  = OSTCBPrioTbl[OSPrioHighRdy]; /* Point to highest priority task ready to run    */
         OSTCBCur      = OSTCBHighRdy;
-        uart_puts("begin start high rdy\n");
         OSStartHighRdy();                            /* Execute target specific code to start task     */
     }
 }

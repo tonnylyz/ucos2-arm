@@ -159,19 +159,18 @@ static struct ns16550 uart[1];
  * RETURNS: N/A
  */
 
-#define DIV_ROUND_CLOSEST(x, divisor)(			\
-{							\
-	typeof(x) __x = x;				\
-	typeof(divisor) __d = divisor;			\
-	(((typeof(x))-1) > 0 ||				\
-	 ((typeof(divisor))-1) > 0 || (__x) > 0) ?	\
-		(((__x) + ((__d) / 2)) / (__d)) :	\
-		(((__x) - ((__d) / 2)) / (__d));	\
-}							\
+#define DIV_ROUND_CLOSEST(x, divisor)(            \
+{                            \
+    typeof(x) __x = x;                \
+    typeof(divisor) __d = divisor;            \
+    (((typeof(x))-1) > 0 ||                \
+     ((typeof(divisor))-1) > 0 || (__x) > 0) ?    \
+        (((__x) + ((__d) / 2)) / (__d)) :    \
+        (((__x) - ((__d) / 2)) / (__d));    \
+}                            \
 )
 
-void uart_init()
-{
+void uart_init() {
     int which = 0;
     uint32_t port = 0x48020000U;
     int baud_rate = 115200;
@@ -185,8 +184,8 @@ void uart_init()
     while (!(INBYTE(LSR(which)) & 0x40));
     OUTBYTE(IER(which), 0x00);
 
-    OUTBYTE(BRDL(which), (unsigned char)(divisor & 0xff));
-    OUTBYTE(BRDH(which), (unsigned char)((divisor >> 8) & 0xff));
+    OUTBYTE(BRDL(which), (unsigned char) (divisor & 0xff));
+    OUTBYTE(BRDH(which), (unsigned char) ((divisor >> 8) & 0xff));
     OUTBYTE(LCR(which), LCR_DLAB | LCR_CS8 | LCR_1_STB | LCR_PDIS);
 
     /* calculate baud rate divisor */
@@ -198,14 +197,17 @@ void uart_init()
     OUTBYTE(MDC(which), 0x3);
     OUTBYTE(FCR(which), 0x7);
     OUTBYTE(LCR(which), LCR_DLAB | LCR_CS8 | LCR_1_STB | LCR_PDIS);
-    OUTBYTE(BRDL(which), (unsigned char)(divisor & 0xff));
-    OUTBYTE(BRDH(which), (unsigned char)((divisor >> 8) & 0xff));
+    OUTBYTE(BRDL(which), (unsigned char) (divisor & 0xff));
+    OUTBYTE(BRDH(which), (unsigned char) ((divisor >> 8) & 0xff));
 
     /* 8 data bits, 1 stop bit, no parity, clear DLAB */
     OUTBYTE(LCR(which), LCR_CS8 | LCR_1_STB | LCR_PDIS);
 }
 
 void uart_putc(char c) {
+    if (c == '\n') {
+        uart_putc('\r');
+    }
     while ((INBYTE(LSR(0)) & 0x20) == 0);
     OUTBYTE(THR(0), c);
 }
@@ -214,9 +216,6 @@ void uart_puts(char *str) {
     char c;
 
     while (0 != (c = *str++)) {
-        if (c == '\n') {
-            uart_putc('\r');
-        }
         uart_putc(c);
     }
 }
@@ -232,7 +231,7 @@ void uart_print_dec(uint32_t dec) {
     } else {
         _depth += 1;
         uart_print_dec(dec / 10);
-        uart_putc((char)(dec%10+'0'));
+        uart_putc((char) (dec % 10 + '0'));
     }
 }
 
@@ -241,8 +240,8 @@ void uart_print_bin(uint32_t bin) {
         uart_puts("0b");
         return;
     }
-    uart_print_bin(bin/2);
-    uart_putc((char)(bin%2 + '0'));
+    uart_print_bin(bin / 2);
+    uart_putc((char) (bin % 2 + '0'));
 }
 
 void uart_print_hex(uint32_t hex) {

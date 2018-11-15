@@ -20,54 +20,65 @@ static inline void barrier() {
     asm volatile ("dsb; isb");
 }
 
-#define OMAP_TIMER_PENDING 0x4ae18048U
-#define OMAP_TIMER_FUNC_BASE 0x4ae18014U
+#define GP_TIMER_BASE         0x48032000u
 
-#define OMAP_TIMER_CTRL_PEND    0x1
-#define OMAP_TIMER_COUNT_PEND   0x2
-#define OMAP_TIMER_LOAD_PEND    0x4
+#define GP_TIMER_TWPS      (GP_TIMER_BASE + 0x48u)
 
-#define OMAP_TIMER_IRQ_EN       0x18
-#define OMAP_TIMER_WAKE_REG     0x20
-#define OMAP_TIMER_CTRL_REG     0x24
-#define OMAP_TIMER_COUNT_REG    0x28
-#define OMAP_TIMER_LOAD_REG     0x2c
+#define GP_TIMER_TCLR_PEND    0x1
+#define GP_TIMER_TCRR_PEND    0x2
+#define GP_TIMER_TLDR_PEND    0x4
 
-#define OMAP_TIMER_CTRL_VAL 0x3 /* Auto Reload + Start */
+#define GP_TIMER_IRQSTATUS_RAW  (GP_TIMER_BASE + 0x24u)
+#define GP_TIMER_IRQSTATUS      (GP_TIMER_BASE + 0x28u)
+#define GP_TIMER_IRQSTATUS_SET  (GP_TIMER_BASE + 0x2Cu)
+#define GP_TIMER_TCLR           (GP_TIMER_BASE + 0x38u)
+#define GP_TIMER_TCRR           (GP_TIMER_BASE + 0x3Cu)
+#define GP_TIMER_TLDR           (GP_TIMER_BASE + 0x40u)
+
+#define GP_TIMER_TCLR_VAL     0x3 /* Auto Reload + Start */
 
 
 #define OMAP_TIMER_INT_CAPTURE			(1 << 2)
 #define OMAP_TIMER_INT_OVERFLOW			(1 << 1)
 #define OMAP_TIMER_INT_MATCH			(1 << 0)
 
-static inline void omap_dm_timer_write(u32 reg, u32 pend, u32 value) {
-    while (mmio_read(OMAP_TIMER_PENDING) & pend) {
+static inline void pend_write(u32 reg, u32 pend, u32 value) {
+    while (mmio_read(GP_TIMER_TWPS) & pend) {
         barrier();
     }
-    mmio_write(OMAP_TIMER_FUNC_BASE + reg, value);
+    mmio_write(reg, value);
 }
 
-static inline u32 omap_dm_timer_read(u32 reg, u32 pend) {
-    while (mmio_read(OMAP_TIMER_PENDING) & pend) {
+static inline u32 pend_read(u32 reg, u32 pend) {
+    while (mmio_read(GP_TIMER_TWPS) & pend) {
         barrier();
     }
-    return mmio_read(OMAP_TIMER_FUNC_BASE + reg);
+    return mmio_read(reg);
 }
 
 void timer_init() {
-    const int TIMER_FREQUENCY = 32768;
+    const int TIMER_FREQUENCY = 0xffffff;
 
     unsigned int load_val = 0xffffffffU - TIMER_FREQUENCY;
 
-    omap_dm_timer_write(OMAP_TIMER_LOAD_REG, OMAP_TIMER_LOAD_PEND, load_val);
-    omap_dm_timer_write(OMAP_TIMER_COUNT_REG, OMAP_TIMER_COUNT_PEND, load_val);
-    omap_dm_timer_write(OMAP_TIMER_CTRL_REG, OMAP_TIMER_CTRL_PEND, OMAP_TIMER_CTRL_VAL);
+    pend_write(GP_TIMER_TLDR, GP_TIMER_TLDR_PEND, load_val);
+    pend_write(GP_TIMER_TCRR, GP_TIMER_TCRR_PEND, load_val);
+    pend_write(GP_TIMER_TCLR, GP_TIMER_TCLR_PEND, GP_TIMER_TCLR_VAL);
 
-    omap_dm_timer_write(OMAP_TIMER_IRQ_EN, 0, OMAP_TIMER_INT_OVERFLOW);
-    omap_dm_timer_write(OMAP_TIMER_WAKE_REG, 0, OMAP_TIMER_INT_OVERFLOW);
+    pend_write(GP_TIMER_IRQSTATUS_SET, 0, OMAP_TIMER_INT_OVERFLOW);
 
+
+//    int j = 0xfffff;
+//    while (j--) {
+//        asm volatile ("nop");
+//    }
+//    mmio_write(GP_TIMER_IRQSTATUS_RAW, OMAP_TIMER_INT_OVERFLOW);
 }
 
 u32 timer_get_count() {
-    return omap_dm_timer_read(OMAP_TIMER_COUNT_REG, OMAP_TIMER_COUNT_PEND);
+    return pend_read(GP_TIMER_TCRR, GP_TIMER_TCRR_PEND);
+}
+
+u32 timer_get_status() {
+    return mmio_read(GP_TIMER_IRQSTATUS);
 }

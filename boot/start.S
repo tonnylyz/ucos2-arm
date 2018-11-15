@@ -25,7 +25,7 @@ start:
 .word	0x04030201
 
 reset:
-    cpsid if // mask irq & fiq
+    //cpsid if // mask irq & fiq
 
 /* Check for HYP mode */
     mrs r0, CPSR
@@ -48,17 +48,25 @@ overHyped: /* Get out of HYP mode */
     msr SPSR_hyp, r1
     eret
 no_hyp:
+
+    // Enable IRQ FIQ (Clear PRIMASK)
+    cpsie if
+
+    //  CPACR (Coprocessor Access Control Register)
     mrc     p15, 0, r0, c1, c0, 2
-    orr     r0, r0, #(0x3  <<20)
-    orr     r0, r0, #(0x3  <<22)
+    orr     r0, r0, #(0x3  <<20) // cp10[21:20] b11~Full access (all PL)
+    orr     r0, r0, #(0x3  <<22) // cp11[22:23] b11~Full access (all PL)
     mcr     p15, 0, r0, c1, c0, 2
     isb
+
+    // FPEXC (Enable Advanced SIMD and VFP)
     mov     r0, #(0x1 << 30)
 	mcr     p10, 7, r0, cr8, cr0, 0
  
     adr sp, start
 	bl  page_table_init
 
+    // VBAR (Install Exception Vectors)
 	ldr r0, =__exc_vectors
 	mcr p15, 0, r0, c12, c0, 0
 
@@ -66,7 +74,6 @@ no_hyp:
 	ldr	sp, =irq_stack_end
 
     msr     CPSR_c, #Mode_SVC | I_Bit | F_Bit
-
 	ldr	pc, =main	@ jump to OS entry
 
 
@@ -78,7 +85,7 @@ __exc_vectors:
         LDR     PC, SVC_Addr
         LDR     PC, Prefetch_Addr
         LDR     PC, Abort_Addr
-        NOP     @ Reserved for secure montor calls
+        NOP     @ Reserved for secure monitor calls
         LDR     PC, IRQ_Addr
         LDR     PC, FIQ_Addr
 .align 2
@@ -88,6 +95,7 @@ Prefetch_Addr:   .word     OS_CPU_ARM_ExceptPrefetchAbortHndlr
 Abort_Addr:      .word     OS_CPU_ARM_ExceptDataAbortHndlr
 IRQ_Addr:        .word     OS_CPU_ARM_ExceptIrqHndlr
 FIQ_Addr:        .word     OS_CPU_ARM_ExceptFiqHndlr
+
 
 	.data 
 	.align 5

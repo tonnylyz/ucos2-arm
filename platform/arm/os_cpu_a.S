@@ -677,6 +677,9 @@ OS_CPU_ARM_ExceptIrqHndlr:
                                                                 @ Change to SVC mode & disable interruptions.
     MSR     CPSR_c, #(OS_CPU_ARM_CONTROL_INT_DIS | OS_CPU_ARM_MODE_SVC)
 
+    // TODO: REMOVE THIS DEBUG BRANCH [LIANG]
+    B cpu_irq
+
                                                                 @ SAVE CONTEXT ONTO SVC STACK:
     STMFD   SP!, {R2}                                           @   Push task's PC,
     STMFD   SP!, {LR}                                           @   Push task's LR,

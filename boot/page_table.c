@@ -65,6 +65,7 @@ void page_table_init() {
     for (paddr = BSP_SDRAM_PHYS_BASE, vaddr = BSP_SDRAM_VIRT_BASE;
          vaddr < 0xfff00000; vaddr += BSP_PAGETABLE_L1_SECT_SIZE, paddr += BSP_PAGETABLE_L1_SECT_SIZE) {
         pt_phys[BSP_PAGETABLE_VADDR_TO_L1_INDEX(vaddr)] = paddr | (3 << 10) | (0xf << 5) | 2;
+                                                              //  AP = 0b11   Domain=0xf   Section
     }
 
     asm volatile ("mcr p15, 0, %0, c2, c0, 0": : "r"((unsigned long) pt_phys));

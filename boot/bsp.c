@@ -10,13 +10,13 @@ extern void App_TaskStart();
 
 int main() {
 
-    INT8U      os_err;
-
     uart_init();
     uart_puts("OS Build: ");
-    uart_puts(__TIMESTAMP__);
+    uart_puts(__DATE__);
+    uart_putc(' ');
+    uart_puts(__TIME__);
     uart_putc('\n');
-
+    uart_putc('\n');
     uart_puts("uart_init finished\n");
 
 
@@ -33,14 +33,12 @@ int main() {
     OSInit();                                                   /* Init uC/OS-II.                                       */
     uart_puts("OSInit done\n");
 
-    OSTaskCreate(App_TaskStart, (void *)0, &App_TaskStartStk[APP_CFG_TASK_START_STK_SIZE - 1], 0);
+    OSTaskCreate(App_TaskStart, (void *)0, &App_TaskStartStk[APP_CFG_TASK_START_STK_SIZE - 1], APP_CFG_TASK_START_PRIO);
     uart_puts("OSTaskCreate done\n");
 
-    CPU_IntEn();
-
+    CPU_IRQ_En();
     OSStart();                                                  /* Start multitasking (i.e. give control to uC/OS-II).  */
 
-    while (1);
 }
 
 void OS_CPU_IntHandler (u32  src_id) {
@@ -55,7 +53,7 @@ u32  CPU_TS_TmrRd ()
     return 0;
 }
 
-void  CPU_TS_TmrInit ()
+void CPU_TS_TmrInit ()
 {
     uart_puts("CPU_TS_TmrInit called\n");
     timer_init();
@@ -83,6 +81,11 @@ void cpu_data_abort() {
 }
 
 void cpu_fiq() {
+    uart_puts("cpu_fiq called\n");
+    while (1);
+}
+
+void cpu_irq() {
     uart_puts("cpu_fiq called\n");
     while (1);
 }

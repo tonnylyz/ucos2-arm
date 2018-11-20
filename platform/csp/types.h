@@ -10,6 +10,7 @@ typedef char int8_t;
 typedef short int16_t;
 typedef int int32_t;
 typedef long long int64_t;
+typedef unsigned long uintptr_t;
 
 typedef unsigned char u8;
 typedef unsigned short u16;
@@ -19,5 +20,9 @@ typedef char i8;
 typedef short i16;
 typedef int i32;
 typedef long long i64;
+
+#define NULL ((void*)0)
+#define FALSE (0)
+#define TRUE (1)
 
 #endif //UCOS2_TYPES_H

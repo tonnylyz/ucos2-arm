@@ -40,7 +40,7 @@
 
 #define    CPU_CORE_MODULE
 #include  <cpu_core.h>
-
+#include <gic.h>
 
 /*$PAGE*/
 /*
@@ -191,6 +191,7 @@ static  CPU_TS_TMR  CPU_IntDisMeasMaxCalc(CPU_TS_TMR  time_tot_cnts);
 
 void  CPU_Init (void)
 {
+    CPU_GIC_Init();
                                                                 /* --------------------- INIT TS ---------------------- */
 #if ((CPU_CFG_TS_EN     == DEF_ENABLED) || \
      (CPU_CFG_TS_TMR_EN == DEF_ENABLED))

@@ -34,7 +34,7 @@ UCLIB_OBJS := lib/lib_ascii.o lib/lib_math.o lib/lib_mem.o lib/lib_str.o
 
 # Platform Specified Objects
 PLATFORM_OBJS := platform/arm/os_cpu_c.o platform/arm/os_cpu_a.o platform/arm/cpu_a.o platform/arm/cpu_core.o \
-                 platform/csp/timer.o platform/csp/uart.o
+                 platform/csp/timer.o platform/csp/uart.o platform/csp/gic.o
 
 # uC/OS-II Kernel Objects
 UCOSII_OBJS := kernel/os_core.o  kernel/os_flag.o kernel/os_mbox.o kernel/os_mem.o \

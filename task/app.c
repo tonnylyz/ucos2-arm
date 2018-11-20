@@ -1,27 +1,30 @@
 #include <uart.h>
 #include <ucos_ii.h>
-#include <app_cfg.h>
+#include "app_cfg.h"
 
-void App_Main() {
-    while (1) {
-        uart_print_dec(1);
-        int j = 0xffff;
-        while (j--) {
-            asm volatile ("nop");
-        }
-    }
-}
-
-void App_TaskStart(void *p_arg) {
-    uart_puts("App_TaskStart entered\n");
-
-#if (OS_TASK_STAT_EN > 0u)
-    OSStatInit();                                               /* Determine CPU capacity                               */
-    uart_puts("OSStatInit done\n");
+void MyTask(void *p_arg)
+{
+    char *sTaskName = (char *)p_arg;
+#if OS_CRITICAL_METHOD == 3
+    OS_CPU_SR cpu_sr = 0;
 #endif
 
+    while (1) {
 
-    App_Main();
+        /*
+         * printf uses mutex to get terminal access, therefore
+         * must enter critical section
+         */
+
+        OS_ENTER_CRITICAL();
+        uart_puts("Name: ");
+        uart_puts(sTaskName);
+        uart_putc('\n');
+        OS_EXIT_CRITICAL();
+
+        /* Delay so other tasks may execute. */
+        OSTimeDly(50);
+    }			/* while */
 }
 
 void App_TaskCreateHook(OS_TCB *ptcb) {
@@ -52,11 +55,11 @@ void App_TaskSwHook(void) {
 }
 
 void App_TCBInitHook(OS_TCB *ptcb) {
-    uart_puts("App_TCBInitHook called\n");
+    //uart_puts("App_TCBInitHook called\n");
 
 }
 
 void App_TimeTickHook(void) {
-    uart_puts("App_TimeTickHook called\n");
+    //uart_puts("App_TimeTickHook called\n");
 
 }

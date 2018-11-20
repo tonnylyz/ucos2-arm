@@ -84,7 +84,7 @@ void page_table_init() {
 
     u32 sctlr;
     asm volatile ("mrc p15, 0, %0, c1, c0, 0":"=r"(sctlr));
-    sctlr |= 0x40180d;
+    sctlr |= 0x401809;
     sctlr &= ~(1 << 13);
     asm volatile ("mcr p15, 0, %0, c1, c0, 0": :"r"(sctlr) : "memory");
     asm volatile ("mov r0, r0; mov r0, r0;mov r0, r0; dsb; isb;");

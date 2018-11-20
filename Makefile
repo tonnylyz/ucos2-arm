@@ -75,4 +75,4 @@ $(OBJ_DIR):
 	$(MKDIR) $(OBJ_DIR)
 
 
-INCLUDES = -Iboot -Ikernel -Ilib -Iplatform/arm -Iplatform/csp
+INCLUDES = -Iboot -Ikernel -Ilib -Iplatform/arm -Iplatform/csp -I task

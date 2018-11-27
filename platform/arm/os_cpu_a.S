@@ -264,7 +264,7 @@ OSCtxSw:
     STR     R2, [R0]
 
     LDR     SP, [R2]                                            @ SP = OSTCBHighRdy->OSTCBStkPtr@
-	
+
 	CLREX                                                       @ Clear the exclusive acess tag for the processor.
 
                                                                 @ RESTORE NEW TASK'S CONTEXT:

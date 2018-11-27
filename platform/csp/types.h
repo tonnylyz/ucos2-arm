@@ -35,6 +35,13 @@ typedef double         FP64;                     /* Double precision floating po
 typedef unsigned int   OS_STK;                   /* Each stack entry is 32-bit wide                    */
 typedef unsigned int   OS_CPU_SR;                /* Define size of CPU status register (PSR = 32 bits) */
 
+typedef unsigned int   size_t;
+
+typedef __builtin_va_list va_list;
+
+#define va_start(...) __builtin_va_start(__VA_ARGS__)
+#define va_end(...) __builtin_va_end(__VA_ARGS__)
+#define va_arg(...) __builtin_va_arg(__VA_ARGS__)
 
 #define NULL ((void*)0)
 #define FALSE (0)

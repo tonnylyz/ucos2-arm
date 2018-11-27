@@ -7,7 +7,7 @@
 #define APP_TASK_4_PRIO         14
 #define APP_TASK_5_PRIO         15
 
-#define APP_TASK_START_STK_SIZE      256
+#define APP_TASK_START_STK_SIZE      1024
 
 #endif  /* #ifndef _APP_CFG_H_ */
 

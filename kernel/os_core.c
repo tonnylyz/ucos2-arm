@@ -23,6 +23,8 @@
 
 #ifndef  OS_MASTER_FILE
 #define  OS_GLOBALS
+
+#include <uart.h>
 #include "ucos_ii.h"
 #endif
 
@@ -1648,6 +1650,9 @@ void  OS_Sched (void)
                 OSTCBHighRdy->OSTCBCtxSwCtr++;         /* Inc. # of context switches to this task      */
 #endif
                 OSCtxSwCtr++;                          /* Increment context switch counter             */
+                uart_puts("Switch to: ");
+                uart_print_dec(OSPrioHighRdy);
+                uart_putc('\n');
                 OS_TASK_SW();                          /* Perform a context switch                     */
             }
         }

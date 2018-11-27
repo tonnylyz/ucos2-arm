@@ -3,16 +3,17 @@
 #include <uart.h>
 #include <timer.h>
 #include <gic.h>
+#include <snprintf.h>
 
 extern void MyTask(void *p_arg);
 
-int main() {
-    INT8U Stk1[APP_TASK_START_STK_SIZE];
-    INT8U Stk2[APP_TASK_START_STK_SIZE];
-    INT8U Stk3[APP_TASK_START_STK_SIZE];
-    INT8U Stk4[APP_TASK_START_STK_SIZE];
-    INT8U Stk5[APP_TASK_START_STK_SIZE];
+INT8U Stk1[APP_TASK_START_STK_SIZE]  __attribute__ ((aligned (APP_TASK_START_STK_SIZE)));
+INT8U Stk2[APP_TASK_START_STK_SIZE]  __attribute__ ((aligned (APP_TASK_START_STK_SIZE)));
+INT8U Stk3[APP_TASK_START_STK_SIZE]  __attribute__ ((aligned (APP_TASK_START_STK_SIZE)));
+INT8U Stk4[APP_TASK_START_STK_SIZE]  __attribute__ ((aligned (APP_TASK_START_STK_SIZE)));
+INT8U Stk5[APP_TASK_START_STK_SIZE]  __attribute__ ((aligned (APP_TASK_START_STK_SIZE)));
 
+int main() {
     char sTask1[] = "Task 1";
     char sTask2[] = "Task 2";
     char sTask3[] = "Task 3";
@@ -21,23 +22,20 @@ int main() {
 
 
     uart_init();
-    uart_puts("OS Build: ");
-    uart_puts(__DATE__);
-    uart_putc(' ');
-    uart_puts(__TIME__);
-    uart_putc('\n');
-    uart_putc('\n');
-    uart_puts("uart_init finished\n");
+
+    printf("OS Build: %s %s\n", __DATE__, __TIME__);
+
+    printf("uart_init finished\n");
 
     gic_init();
-    uart_puts("gic_init finished\n");
+    printf("gic_init finished\n");
     timer_init();
-    uart_puts("timer_init finished\n");
+    printf("timer_init finished\n");
 
     OS_CPU_SR_INT_En();
 
     OSInit();
-    uart_puts("OSInit done\n");
+    printf("OSInit done\n");
 
 
     OSTaskCreate(MyTask, sTask1,
@@ -59,14 +57,31 @@ int main() {
                  (void *) &Stk5[APP_TASK_START_STK_SIZE - 1],
                  APP_TASK_5_PRIO);
 
+    printf("task create done\n");
     OSStart();
-    return 0;
+    while (1) {
+        asm volatile ("nop");
+    }
 }
 
 void OS_CPU_IntHandler(u32 src_id) {
-    uart_puts("OS_CPU_IntHandler called\n");
+    printf("%s\n", __FUNCTION__);
     timer_clear_irq();
     OSIntEnter();
     OSTimeTick();
     OSIntExit();
+}
+
+void OS_CPU_AbortHandler() {
+    printf("%s\n", __FUNCTION__);
+    while (1) {
+        asm volatile ("nop");
+    }
+}
+
+void OS_CPU_UndefHandler() {
+    printf("%s\n", __FUNCTION__);
+    while (1) {
+        asm volatile ("nop");
+    }
 }

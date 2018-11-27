@@ -63,7 +63,7 @@ no_hyp:
     mov     r0, #(0x1 << 30)
 	mcr     p10, 7, r0, cr8, cr0, 0
  
-    adr sp, start
+    ldr sp, =svc_stack_end
 	bl  page_table_init
 
     // VBAR (Install Exception Vectors)
@@ -72,6 +72,9 @@ no_hyp:
 
 	msr     CPSR_c, #Mode_IRQ | I_Bit | F_Bit
 	ldr	sp, =irq_stack_end
+
+	msr     CPSR_c, #Mode_ABT | I_Bit | F_Bit
+	ldr	sp, =abt_stack_end
 
     msr     CPSR_c, #Mode_SVC | I_Bit | F_Bit
 	ldr	pc, =main	@ jump to OS entry
@@ -89,21 +92,20 @@ __exc_vectors:
         LDR     PC, IRQ_Addr
         LDR     PC, FIQ_Addr
 .align 2
-Undefined_Addr:	 .word     OS_CPU_ARM_ExceptUndefInstrHndlr
+Undefined_Addr:	 .word     OS_CPU_UndefHandler //OS_CPU_ARM_ExceptUndefInstrHndlr
 SVC_Addr:        .word     OS_CPU_ARM_ExceptSwiHndlr
-Prefetch_Addr:   .word     OS_CPU_ARM_ExceptPrefetchAbortHndlr
-Abort_Addr:      .word     OS_CPU_ARM_ExceptDataAbortHndlr
+Prefetch_Addr:   .word     OS_CPU_AbortHandler //OS_CPU_ARM_ExceptPrefetchAbortHndlr
+Abort_Addr:      .word     OS_CPU_AbortHandler //OS_CPU_ARM_ExceptDataAbortHndlr
 IRQ_Addr:        .word     OS_CPU_ARM_ExceptIrqHndlr
 FIQ_Addr:        .word     OS_CPU_ARM_ExceptFiqHndlr
 
 
 	.data 
 	.align 5
-.globl irq_stack_end
-fiq_stack_start:	
-	.space 1024
-fiq_stack_end:	
-	.space 1024
-irq_stack_end:	
-	.space 4096
-usr_stack_end:	
+
+	.space 16384
+irq_stack_end:
+	.space 16384
+abt_stack_end:
+	.space 16384
+svc_stack_end:

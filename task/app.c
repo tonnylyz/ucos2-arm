@@ -1,6 +1,7 @@
 #include <uart.h>
 #include <ucos_ii.h>
 #include "app_cfg.h"
+#include "snprintf.h"
 
 void MyTask(void *p_arg) {
     char *sTaskName = (char *) p_arg;
@@ -45,6 +46,8 @@ void App_TaskReturnHook(OS_TCB *ptcb) {
 void App_TaskSwHook(void) {
     uart_puts("App_TaskSwHook called\n");
 
+    printf("OSTCBHighRdy->OSTCBStkPtr [%08x]\n", OSTCBHighRdy->OSTCBStkPtr);
+    printf("OSTCBHighRdy->PC [%08x]\n", OSTCBHighRdy->OSTCBStkPtr[14]);
 }
 
 void App_TCBInitHook(OS_TCB *ptcb) {

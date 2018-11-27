@@ -17,14 +17,14 @@ AR		= $(BUILD_TOOL_ROOT)/bin/$(CROSS_COMPILE)ar
 OBJCOPY = $(BUILD_TOOL_ROOT)/bin/$(CROSS_COMPILE)objcopy
 
 CFLAGS := -c -Wall
-CFLAGS += -mcpu=cortex-a15 -mfpu=neon -mfloat-abi=soft
+CFLAGS += -mcpu=cortex-a15 -mfpu=neon -mfloat-abi=hard
 CFLAGS += -ffreestanding -fno-builtin-printf
 CFLAGS += -fno-stack-protector
 
 # Objects
 ######################################
 # Task Program Objects
-TASK_OBJS := task/app.o
+TASK_OBJS := task/app.o task/snprintf.o
 
 # Bootstrap Objects
 BSP_OBJS := boot/bsp.o boot/page_table.o boot/start.o

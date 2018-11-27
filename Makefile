@@ -29,11 +29,8 @@ TASK_OBJS := task/app.o
 # Bootstrap Objects
 BSP_OBJS := boot/bsp.o boot/page_table.o boot/start.o
 
-# uC/OS-II Library Objects
-UCLIB_OBJS := lib/lib_ascii.o lib/lib_math.o lib/lib_mem.o lib/lib_str.o
-
 # Platform Specified Objects
-PLATFORM_OBJS := platform/arm/os_cpu_c.o platform/arm/os_cpu_a.o platform/arm/cpu_a.o platform/arm/cpu_core.o \
+PLATFORM_OBJS := platform/arm/os_cpu_c.o platform/arm/os_cpu_a.o \
                  platform/csp/timer.o platform/csp/uart.o platform/csp/gic.o
 
 # uC/OS-II Kernel Objects
@@ -52,12 +49,12 @@ zImage: ucosii.a ucosii.lds $(TASK_OBJS)
 	$(LD) -o ucosii.axf $(LDFLAGS) --gc-sections -Bstatic --gc-sections --start-group --script=ucosii.lds $(TASK_OBJS) ucosii.a -nostdlib -Map=ucosii.map
 	$(OBJCOPY) -O binary -R .note -R .comment -S ucosii.axf zImage
 
-ucosii.a: $(BSP_OBJS) $(UCLIB_OBJS) $(PLATFORM_OBJS) $(UCOSII_OBJS)
-	$(AR) -r $@ $(BSP_OBJS) $(UCLIB_OBJS) $(PLATFORM_OBJS) $(UCOSII_OBJS)
+ucosii.a: $(BSP_OBJS) $(PLATFORM_OBJS) $(UCOSII_OBJS)
+	$(AR) -r $@ $(BSP_OBJS) $(PLATFORM_OBJS) $(UCOSII_OBJS)
 
 
 clean:
-	$(RM) $(TASK_OBJS) $(BSP_OBJS) $(UCLIB_OBJS) $(PLATFORM_OBJS) $(UCOSII_OBJS) ucosii.axf ucosii.a zImage -f
+	$(RM) $(TASK_OBJS) $(BSP_OBJS) $(PLATFORM_OBJS) $(UCOSII_OBJS) ucosii.axf ucosii.a zImage -f
 
 %.o: %.S
 	$(CC) $(CFLAGS) $(INCLUDES) -o $@ $<

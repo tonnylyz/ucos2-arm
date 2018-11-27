@@ -1,15 +1,12 @@
 #include <ucos_ii.h>
-#include <cpu_core.h>
+#include <types.h>
 #include <uart.h>
 #include <timer.h>
-#include <types.h>
+#include <gic.h>
 
 extern void MyTask(void *p_arg);
 
 int main() {
-
-    INT8U err;
-
     INT8U Stk1[APP_TASK_START_STK_SIZE];
     INT8U Stk2[APP_TASK_START_STK_SIZE];
     INT8U Stk3[APP_TASK_START_STK_SIZE];
@@ -32,15 +29,14 @@ int main() {
     uart_putc('\n');
     uart_puts("uart_init finished\n");
 
-    CPU_Init();
-    CPU_IntEn();                                               /* Initialize the uC/CPU services                       */
+    gic_init();
+    uart_puts("gic_init finished\n");
+    timer_init();
+    uart_puts("timer_init finished\n");
 
-#if (CPU_CFG_NAME_EN == DEF_ENABLED)
-    CPU_NameSet((CPU_CHAR *)CSP_DEV_NAME,
-                (CPU_ERR  *)&cpu_err);
-#endif
+    OS_CPU_SR_INT_En();
 
-    OSInit();                                                   /* Init uC/OS-II.                                       */
+    OSInit();
     uart_puts("OSInit done\n");
 
 
@@ -63,11 +59,9 @@ int main() {
                  (void *) &Stk5[APP_TASK_START_STK_SIZE - 1],
                  APP_TASK_5_PRIO);
 
-    OSStart();                                                  /* Start multitasking (i.e. give control to uC/OS-II).  */
-
+    OSStart();
+    return 0;
 }
-
-extern void timer_clear_irq();
 
 void OS_CPU_IntHandler(u32 src_id) {
     uart_puts("OS_CPU_IntHandler called\n");
@@ -75,15 +69,4 @@ void OS_CPU_IntHandler(u32 src_id) {
     OSIntEnter();
     OSTimeTick();
     OSIntExit();
-}
-
-u32 CPU_TS_TmrRd() {
-    uart_puts("CPU_TS_TmrRd called\n");
-    while (1);
-    return 0;
-}
-
-void CPU_TS_TmrInit() {
-    uart_puts("CPU_TS_TmrInit called\n");
-    timer_init();
 }

@@ -1,4 +1,3 @@
-#include <cpu.h>
 #include <types.h>
 
 #define BSP_SDRAM_PHYS_BASE                  0UL

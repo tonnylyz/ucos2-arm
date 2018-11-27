@@ -19,8 +19,6 @@
 @********************************************************************************************************
 @
 
-#include  <os_cpu_cfg.h>
-
 @********************************************************************************************************
 @                                          EXTERNAL REFERENCE
 @********************************************************************************************************
@@ -886,7 +884,7 @@ OS_CPU_SR_FIQ_Dis:
 
 @$PAGE
 @********************************************************************************************************
-@                                              OS_CPU_ARM_CtxID_Set()                                        
+@                                              OS_CPU_ARM_CtxID_Set()
 @
 @ Description : Set the context identification value in the Contex ID register.
 @
@@ -895,7 +893,7 @@ OS_CPU_SR_FIQ_Dis:
 @ Return(s)   : none.
 @
 @ Caller(s)   : Application.
-@              
+@
 @ Note(s)     : none.
 @********************************************************************************************************
 
@@ -904,11 +902,11 @@ OS_CPU_SR_FIQ_Dis:
 OS_CPU_ARM_CtxID_Set:
         MCR     P15, 0, R0, C13, C0, 1
         BX      LR
-        
+
 
 @$PAGE
 @********************************************************************************************************
-@                                            OS_CPU_ARM_CtxID_Get()                                        
+@                                            OS_CPU_ARM_CtxID_Get()
 @
 @ Description : Get the context identification value from the Contex ID register.
 @
@@ -917,7 +915,7 @@ OS_CPU_ARM_CtxID_Set:
 @ Return(s)   : The current context identification value.
 @
 @ Caller(s)   : Application.
-@              
+@
 @ Note(s)     : none.
 @********************************************************************************************************
 

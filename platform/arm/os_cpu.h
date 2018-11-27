@@ -1,65 +1,19 @@
-/*
-*********************************************************************************************************
-*                                                uC/OS-II
-*                                          The Real-Time Kernel
-*
-*
-*                           (c) Copyright 2009-2010; Micrium, Inc.; Weston, FL
-*                    All rights reserved.  Protected by international copyright laws.
-*
-;                                      Generic ARM CORTEX-A9 Port
-*
-* File      : OS_CPU.H
-* Version   : V2.92
-* By        : NB
-*
-* For       : ARM Cortex-A9 (ARMv7)
-* Mode      : ARM or Thumb
-* Toolchain : gcc
-*********************************************************************************************************
-*/
-
 #ifndef  OS_CPU_H
 #define  OS_CPU_H
 
-#include <os_cpu_cfg.h>
+#include <types.h>
 
-#ifdef   OS_CPU_GLOBALS
-#define  OS_CPU_EXT
-#else
-#define  OS_CPU_EXT  extern
-#endif
+#define  OS_CPU_ARM_FP_EN                                 1
+#define  OS_CPU_EXCEPT_STK_SIZE    128u
 
-
-#ifndef  OS_CPU_EXCEPT_STK_SIZE
-#define  OS_CPU_EXCEPT_STK_SIZE    128u                         /* Default exception stack size is 128 OS_STK entries.  */
-#endif
-
-
-/*
-*********************************************************************************************************
-*                                       CONFIGURATION DEFAULTS
-*********************************************************************************************************
-*/
-
-
-/*
-*********************************************************************************************************
-*                                               DEFINES
-*********************************************************************************************************
-*/
 
 #define  OS_CPU_ARM_ENDIAN_LITTLE                         1u
 #define  OS_CPU_ARM_ENDIAN_BIG                            2u
 
 
 #define  OS_CPU_ARM_FP_REG_NBR                           32u
-
-#if (OS_CPU_CFG_ARM_LITTLE_ENDIAN == 1)
 #define  OS_CPU_ARM_ENDIAN_TYPE                           OS_CPU_ARM_ENDIAN_LITTLE
-#else
-#define  OS_CPU_ARM_ENDIAN_TYPE                           OS_CPU_ARM_ENDIAN_BIG
-#endif
+
 
 
 /*
@@ -68,7 +22,7 @@
 *********************************************************************************************************
 */
 
-                                                            /* ARM exception IDs                                      */
+/* ARM exception IDs                                      */
 #define  OS_CPU_ARM_EXCEPT_RST                         0x00u
 #define  OS_CPU_ARM_EXCEPT_UND                         0x01u
 #define  OS_CPU_ARM_EXCEPT_SWI                         0x02u
@@ -79,7 +33,7 @@
 #define  OS_CPU_ARM_EXCEPT_FIQ                         0x07u
 
 
-                                                            /* ARM exception vectors addresses                        */
+/* ARM exception vectors addresses                        */
 #define  OS_CPU_ARM_EXCEPT_VECT_ADDR_RST                (OS_CPU_ARM_EXCEPT_RST            * 0x04u + 0x00u)
 #define  OS_CPU_ARM_EXCEPT_VECT_ADDR_UND                (OS_CPU_ARM_EXCEPT_UND            * 0x04u + 0x00u)
 #define  OS_CPU_ARM_EXCEPT_VECT_ADDR_SWI                (OS_CPU_ARM_EXCEPT_SWI            * 0x04u + 0x00u)
@@ -88,7 +42,7 @@
 #define  OS_CPU_ARM_EXCEPT_VECT_ADDR_IRQ                (OS_CPU_ARM_EXCEPT_IRQ            * 0x04u + 0x00u)
 #define  OS_CPU_ARM_EXCEPT_VECT_ADDR_FIQ                (OS_CPU_ARM_EXCEPT_FIQ            * 0x04u + 0x00u)
 
-                                                            /* ARM exception handlers addresses                       */
+/* ARM exception handlers addresses                       */
 #define  OS_CPU_ARM_EXCEPT_HANDLER_ADDR_RST             (OS_CPU_ARM_EXCEPT_RST            * 0x04u + 0x20u)
 #define  OS_CPU_ARM_EXCEPT_HANDLER_ADDR_UND             (OS_CPU_ARM_EXCEPT_UND            * 0x04u + 0x20u)
 #define  OS_CPU_ARM_EXCEPT_HANDLER_ADDR_SWI             (OS_CPU_ARM_EXCEPT_SWI            * 0x04u + 0x20u)
@@ -97,9 +51,9 @@
 #define  OS_CPU_ARM_EXCEPT_HANDLER_ADDR_IRQ             (OS_CPU_ARM_EXCEPT_IRQ            * 0x04u + 0x20u)
 #define  OS_CPU_ARM_EXCEPT_HANDLER_ADDR_FIQ             (OS_CPU_ARM_EXCEPT_FIQ            * 0x04u + 0x20u)
 
-                                                            /* ARM "Jump To Self" asm instruction                     */
+/* ARM "Jump To Self" asm instruction                     */
 #define  OS_CPU_ARM_INSTR_JUMP_TO_SELF                 0xEAFFFFFEu
-                                                            /* ARM "Jump To Exception Handler" asm instruction        */
+/* ARM "Jump To Exception Handler" asm instruction        */
 #define  OS_CPU_ARM_INSTR_JUMP_TO_HANDLER              0xE59FF018u
 
 #define  OS_CPU_ARM_BIT_CPSR_N                     (1u  << 31u)
@@ -126,26 +80,6 @@
 
 #define  OS_CPU_ARM_BIT_FPEXC_EN                   (1u << 30u)
 
-
-/*
-*********************************************************************************************************
-*                                              DATA TYPES
-*                                         (Compiler Specific)
-*********************************************************************************************************
-*/
-
-typedef unsigned char  BOOLEAN;
-typedef unsigned char  INT8U;                    /* Unsigned  8 bit quantity                           */
-typedef signed   char  INT8S;                    /* Signed    8 bit quantity                           */
-typedef unsigned short INT16U;                   /* Unsigned 16 bit quantity                           */
-typedef signed   short INT16S;                   /* Signed   16 bit quantity                           */
-typedef unsigned int   INT32U;                   /* Unsigned 32 bit quantity                           */
-typedef signed   int   INT32S;                   /* Signed   32 bit quantity                           */
-typedef float          FP32;                     /* Single precision floating point                    */
-typedef double         FP64;                     /* Double precision floating point                    */
-
-typedef unsigned int   OS_STK;                   /* Each stack entry is 32-bit wide                    */
-typedef unsigned int   OS_CPU_SR;                /* Define size of CPU status register (PSR = 32 bits) */
 
 /*
 *********************************************************************************************************
@@ -182,19 +116,8 @@ typedef unsigned int   OS_CPU_SR;                /* Define size of CPU status re
 
 #if      OS_CRITICAL_METHOD == 3u
 
-#if      OS_CPU_INT_DIS_MEAS_EN > 0u
-
-#define  OS_ENTER_CRITICAL()  {cpu_sr = OS_CPU_SR_Save();  \
-                               OS_CPU_IntDisMeasStart();}
-#define  OS_EXIT_CRITICAL()   {OS_CPU_IntDisMeasStop();   \
-                               OS_CPU_SR_Restore(cpu_sr);}
-
-#else
-
 #define  OS_ENTER_CRITICAL()  {cpu_sr = OS_CPU_SR_Save();}
 #define  OS_EXIT_CRITICAL()   {OS_CPU_SR_Restore(cpu_sr);}
-
-#endif
 
 #endif
 
@@ -229,19 +152,9 @@ typedef unsigned int   OS_CPU_SR;                /* Define size of CPU status re
 *********************************************************************************************************
 */
 
-                                                            /* Variables used to measure interrupt disable time      */
-#if OS_CPU_INT_DIS_MEAS_EN > 0u
-OS_CPU_EXT  INT16U   OS_CPU_IntDisMeasNestingCtr;
-OS_CPU_EXT  INT16U   OS_CPU_IntDisMeasCntsEnter;
-OS_CPU_EXT  INT16U   OS_CPU_IntDisMeasCntsExit;
-OS_CPU_EXT  INT16U   OS_CPU_IntDisMeasCntsMax;
-OS_CPU_EXT  INT16U   OS_CPU_IntDisMeasCntsDelta;
-OS_CPU_EXT  INT16U   OS_CPU_IntDisMeasCntsOvrhd;
-#endif
-
-OS_CPU_EXT  OS_STK   OS_CPU_ExceptStk[OS_CPU_EXCEPT_STK_SIZE];
-OS_CPU_EXT  OS_STK  *OS_CPU_ExceptStkBase;
-OS_CPU_EXT  OS_STK  *OS_CPU_ExceptStkPtr;    
+extern OS_STK OS_CPU_ExceptStk[OS_CPU_EXCEPT_STK_SIZE];
+extern OS_STK *OS_CPU_ExceptStkBase;
+extern OS_STK *OS_CPU_ExceptStkPtr;
 
 /*
 *********************************************************************************************************
@@ -250,45 +163,53 @@ OS_CPU_EXT  OS_STK  *OS_CPU_ExceptStkPtr;
 */
 
 #if OS_CRITICAL_METHOD == 3u                                /* See OS_CPU_A.ASM                                  */
-OS_CPU_SR  OS_CPU_SR_Save                     (void);
-void       OS_CPU_SR_Restore                  (OS_CPU_SR cpu_sr);
+
+OS_CPU_SR OS_CPU_SR_Save(void);
+
+void OS_CPU_SR_Restore(OS_CPU_SR cpu_sr);
+
 #endif
 
-void       OS_CPU_SR_INT_Dis                  (void);
-void       OS_CPU_SR_INT_En                   (void);
-void       OS_CPU_SR_FIQ_Dis                  (void);
-void       OS_CPU_SR_FIQ_En                   (void);
-void       OS_CPU_SR_IRQ_Dis                  (void);
-void       OS_CPU_SR_IRQ_En                   (void);
+void OS_CPU_SR_INT_Dis(void);
 
-void       OSCtxSw                            (void);
-void       OSIntCtxSw                         (void);
-void       OSStartHighRdy                     (void);
+void OS_CPU_SR_INT_En(void);
 
-void       OS_CPU_InitExceptVect              (void);
+void OS_CPU_SR_FIQ_Dis(void);
 
-void       OS_CPU_ARM_ExceptUndefInstrHndlr   (void);
-void       OS_CPU_ARM_ExceptSwiHndlr          (void);
-void       OS_CPU_ARM_ExceptPrefetchAbortHndlr(void);
-void       OS_CPU_ARM_ExceptDataAbortHndlr    (void);
-void       OS_CPU_ARM_ExceptIrqHndlr          (void);
-void       OS_CPU_ARM_ExceptFiqHndlr          (void);
+void OS_CPU_SR_FIQ_En(void);
 
-void       OS_CPU_IntHandler                  (INT32U  src_id);
+void OS_CPU_SR_IRQ_Dis(void);
 
-INT32U     OS_CPU_ExceptStkChk                (void);
+void OS_CPU_SR_IRQ_En(void);
 
-#if OS_CPU_INT_DIS_MEAS_EN > 0u
-void       OS_CPU_IntDisMeasInit              (void);
-void       OS_CPU_IntDisMeasStart             (void);
-void       OS_CPU_IntDisMeasStop              (void);
-INT16U     OS_CPU_IntDisMeasTmrRd             (void);
-#endif
+void OSCtxSw(void);
+
+void OSIntCtxSw(void);
+
+void OSStartHighRdy(void);
+
+void OS_CPU_ARM_ExceptUndefInstrHndlr(void);
+
+void OS_CPU_ARM_ExceptSwiHndlr(void);
+
+void OS_CPU_ARM_ExceptPrefetchAbortHndlr(void);
+
+void OS_CPU_ARM_ExceptDataAbortHndlr(void);
+
+void OS_CPU_ARM_ExceptIrqHndlr(void);
+
+void OS_CPU_ARM_ExceptFiqHndlr(void);
+
+void OS_CPU_IntHandler(INT32U src_id);
+
+INT32U OS_CPU_ExceptStkChk(void);
 
 #if OS_CPU_ARM_DCC_EN > 0u
 void       OSDCC_Handler                      (void);
 #endif
 
-void       OS_CPU_ARM_CtxID_Set               (INT32U  ctx_id);
-INT32U     OS_CPU_ARM_CtxID_Get               (void);
+void OS_CPU_ARM_CtxID_Set(INT32U ctx_id);
+
+INT32U OS_CPU_ARM_CtxID_Get(void);
+
 #endif

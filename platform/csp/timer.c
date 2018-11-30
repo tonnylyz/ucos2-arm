@@ -1,24 +1,7 @@
 #include "timer.h"
 #include "uart.h"
 #include <types.h>
-
-
-static inline u32 mmio_read(u32 ptr) {
-    u32 val;
-    asm volatile("ldr %0, %1"
-    : "=r" (val)
-    : "Qo" (*(volatile u32 *) ptr));
-    return val;
-}
-
-static inline void mmio_write(u32 ptr, u32 value) {
-    asm volatile("str %1, %0"
-    : : "Qo" (*(volatile u32 *) ptr), "r" (value));
-}
-
-static inline void barrier() {
-    asm volatile ("dsb; isb");
-}
+#include <mmio.h>
 
 #define GP_TIMER_BASE         0x48032000u //Timer 2
 

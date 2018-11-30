@@ -13,6 +13,8 @@ INT8U Stk3[APP_TASK_START_STK_SIZE]  __attribute__ ((aligned (APP_TASK_START_STK
 INT8U Stk4[APP_TASK_START_STK_SIZE]  __attribute__ ((aligned (APP_TASK_START_STK_SIZE)));
 INT8U Stk5[APP_TASK_START_STK_SIZE]  __attribute__ ((aligned (APP_TASK_START_STK_SIZE)));
 
+extern void uart_test();
+
 int main() {
     char sTask1[] = "Task 1";
     char sTask2[] = "Task 2";
@@ -20,17 +22,7 @@ int main() {
     char sTask4[] = "Task 4";
     char sTask5[] = "Task 5";
 
-
-
-    //uart_init(UART_BASE_3);
-    uart_init(UART_BASE_2);
-    printf("uart_init 3 finished\n");
-    printf("uart_init 2 finished\n");
-
     printf("OS Build: %s %s\n", __DATE__, __TIME__);
-
-    printf("uart_init finished\n");
-
     gic_init();
     printf("gic_init finished\n");
     timer_init();
@@ -69,7 +61,7 @@ int main() {
 }
 
 void OS_CPU_IntHandler(u32 src_id) {
-    printf("%s\n", __FUNCTION__);
+    //printf("%s\n", __FUNCTION__);
     timer_clear_irq();
     OSIntEnter();
     OSTimeTick();

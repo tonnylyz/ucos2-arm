@@ -44,10 +44,10 @@ void App_TaskReturnHook(OS_TCB *ptcb) {
 }
 
 void App_TaskSwHook(void) {
-    uart_puts("App_TaskSwHook called\n");
+    //uart_puts("App_TaskSwHook called\n");
 
-    printf("OSTCBHighRdy->OSTCBStkPtr [%08x]\n", OSTCBHighRdy->OSTCBStkPtr);
-    printf("OSTCBHighRdy->PC [%08x]\n", OSTCBHighRdy->OSTCBStkPtr[14]);
+    //printf("OSTCBHighRdy->OSTCBStkPtr [%08x]\n", OSTCBHighRdy->OSTCBStkPtr);
+    //printf("OSTCBHighRdy->PC [%08x]\n", OSTCBHighRdy->OSTCBStkPtr[14]);
 }
 
 void App_TCBInitHook(OS_TCB *ptcb) {

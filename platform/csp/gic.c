@@ -1,6 +1,7 @@
 #include "types.h"
 #include "gic.h"
 #include "uart.h"
+#include "mmio.h"
 
 typedef uint32_t Uint32;
 typedef uint8_t Uint8;
@@ -617,31 +618,6 @@ static inline void CSL_armGicDisableIntr
     }
 }
 
-#define HW_SYNC_BARRIER() asm volatile ("dsb")
-
-static inline uint32_t HW_RD_REG32_RAW(uint32_t addr)
-{
-    uint32_t regVal = *(volatile uint32_t *) ((uintptr_t) addr);
-    /* Donot call any functions after this. If required implement as macros */
-    HW_SYNC_BARRIER();
-    return (regVal);
-}
-
-static inline void HW_WR_REG32_RAW(uint32_t addr, uint32_t value)
-{
-    *(volatile uint32_t *) ((uintptr_t) addr) = value;
-    /* Donot call any functions after this. If required implement as macros */
-    HW_SYNC_BARRIER();
-    return;
-}
-
-//void OS_CPU_EOI () {
-//    CSL_ArmGicCpuIntrf *cpuIntrf = &gCpuIntrf;
-//    Uint32 intrAckVal   = (Uint32) HW_RD_REG32_RAW(cpuIntrf->iarRegAddress);
-//    HW_WR_REG32_RAW(cpuIntrf->eoiRegAddress, intrAckVal);
-//    timer_clear_irq();
-//}
-
 u32 gic_get_active_state(int intrNum) {
     CSL_ArmgicDistributorRegs *gicDistInst = NULL;
     gicDistInst = gCpuIntrf.gicDist->distBasePtr;
@@ -691,5 +667,5 @@ void gic_init(void) {
 
     CSL_armGicInit(&gCpuIntrf);
     CSL_armGicEnableIntr(&gCpuIntrf, 70); // Timer2 ID70
-    HW_WR_REG32_RAW(0x4a002a4c, 0); // crossbar setting: disable firewall error irq
+    mmio_write(0x4a002a4c, 0); // crossbar setting: disable firewall error irq
 }

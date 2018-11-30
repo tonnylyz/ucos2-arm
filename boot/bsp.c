@@ -21,7 +21,11 @@ int main() {
     char sTask5[] = "Task 5";
 
 
-    uart_init();
+
+    //uart_init(UART_BASE_3);
+    uart_init(UART_BASE_2);
+    printf("uart_init 3 finished\n");
+    printf("uart_init 2 finished\n");
 
     printf("OS Build: %s %s\n", __DATE__, __TIME__);
 

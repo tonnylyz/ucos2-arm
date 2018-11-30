@@ -120,44 +120,23 @@
 /* convenience defines */
 #define UART_REG_ADDR_INTERVAL 4
 
-#define THR(n)  (uart[n].port + REG_THR * UART_REG_ADDR_INTERVAL)
-#define RDR(n)  (uart[n].port + REG_RDR * UART_REG_ADDR_INTERVAL)
-#define BRDL(n) (uart[n].port + REG_BRDL * UART_REG_ADDR_INTERVAL)
-#define BRDH(n) (uart[n].port + REG_BRDH * UART_REG_ADDR_INTERVAL)
-#define IER(n)  (uart[n].port + REG_IER * UART_REG_ADDR_INTERVAL)
-#define IIR(n)  (uart[n].port + REG_IIR * UART_REG_ADDR_INTERVAL)
-#define FCR(n)  (uart[n].port + REG_FCR * UART_REG_ADDR_INTERVAL)
-#define LCR(n)  (uart[n].port + REG_LCR * UART_REG_ADDR_INTERVAL)
-#define MDC(n)  (uart[n].port + REG_MDC * UART_REG_ADDR_INTERVAL)
-#define LSR(n)  (uart[n].port + REG_LSR * UART_REG_ADDR_INTERVAL)
-#define MSR(n)  (uart[n].port + REG_MSR * UART_REG_ADDR_INTERVAL)
+#define THR(n)  (n + REG_THR * UART_REG_ADDR_INTERVAL)
+#define RDR(n)  (n + REG_RDR * UART_REG_ADDR_INTERVAL)
+#define BRDL(n) (n + REG_BRDL * UART_REG_ADDR_INTERVAL)
+#define BRDH(n) (n + REG_BRDH * UART_REG_ADDR_INTERVAL)
+#define IER(n)  (n + REG_IER * UART_REG_ADDR_INTERVAL)
+#define IIR(n)  (n + REG_IIR * UART_REG_ADDR_INTERVAL)
+#define FCR(n)  (n + REG_FCR * UART_REG_ADDR_INTERVAL)
+#define LCR(n)  (n + REG_LCR * UART_REG_ADDR_INTERVAL)
+#define MDC(n)  (n + REG_MDC * UART_REG_ADDR_INTERVAL)
+#define LSR(n)  (n + REG_LSR * UART_REG_ADDR_INTERVAL)
+#define MSR(n)  (n + REG_MSR * UART_REG_ADDR_INTERVAL)
 
 #define IIRC(n) uart[n].iirCache
 
 #define INBYTE(x) (*(volatile unsigned char *)(x))
 #define OUTBYTE(x, d) do { *(volatile unsigned char *)(x) = (d); } while (0)
 
-/* typedefs */
-
-struct ns16550 {
-    uint32_t port;    /* base port number or MM base address    */
-    uint8_t irq;      /* interrupt request level                */
-    uint8_t intPri;   /* interrupt priority                     */
-    uint8_t iirCache; /* cache of IIR since it clears when read */
-};
-
-/* locals */
-
-static struct ns16550 uart[1];
-
-/*******************************************************************************
- *
- * uart_init - initialize the chip
- *
- * This routine is called to reset the chip in a quiescent state.
- *
- * RETURNS: N/A
- */
 
 #define DIV_ROUND_CLOSEST(x, divisor)(            \
 {                            \
@@ -170,23 +149,17 @@ static struct ns16550 uart[1];
 }                            \
 )
 
-void uart_init() {
-    int which = 0;
-    uint32_t port = 0x48020000U;
-    int baud_rate = 115200;
+void uart_init(u32 base) {
 
+    int baud_rate = 115200;
     uint32_t divisor = 0; /* baud rate divisor */
 
-    uart[which].port = port;
-    uart[which].irq = 0;
-    uart[which].intPri = 0;
-    uart[which].iirCache = 0;
-    while (!(INBYTE(LSR(which)) & 0x40));
-    OUTBYTE(IER(which), 0x00);
+    while (!(INBYTE(LSR(base)) & 0x40));
+    OUTBYTE(IER(base), 0x00);
 
-    OUTBYTE(BRDL(which), (unsigned char) (divisor & 0xff));
-    OUTBYTE(BRDH(which), (unsigned char) ((divisor >> 8) & 0xff));
-    OUTBYTE(LCR(which), LCR_DLAB | LCR_CS8 | LCR_1_STB | LCR_PDIS);
+    OUTBYTE(BRDL(base), (unsigned char) (divisor & 0xff));
+    OUTBYTE(BRDH(base), (unsigned char) ((divisor >> 8) & 0xff));
+    OUTBYTE(LCR(base), LCR_DLAB | LCR_CS8 | LCR_1_STB | LCR_PDIS);
 
     /* calculate baud rate divisor */
     //divisor = (48000000 / 16 / baud_rate);
@@ -194,22 +167,28 @@ void uart_init() {
 
     /* set the DLAB to access the baud rate divisor registers */
 
-    OUTBYTE(MDC(which), 0x3);
-    OUTBYTE(FCR(which), 0x7);
-    OUTBYTE(LCR(which), LCR_DLAB | LCR_CS8 | LCR_1_STB | LCR_PDIS);
-    OUTBYTE(BRDL(which), (unsigned char) (divisor & 0xff));
-    OUTBYTE(BRDH(which), (unsigned char) ((divisor >> 8) & 0xff));
+    OUTBYTE(MDC(base), 0x3);
+    OUTBYTE(FCR(base), 0x7);
+    OUTBYTE(LCR(base), LCR_DLAB | LCR_CS8 | LCR_1_STB | LCR_PDIS);
+    OUTBYTE(BRDL(base), (unsigned char) (divisor & 0xff));
+    OUTBYTE(BRDH(base), (unsigned char) ((divisor >> 8) & 0xff));
 
     /* 8 data bits, 1 stop bit, no parity, clear DLAB */
-    OUTBYTE(LCR(which), LCR_CS8 | LCR_1_STB | LCR_PDIS);
+    OUTBYTE(LCR(base), LCR_CS8 | LCR_1_STB | LCR_PDIS);
+}
+
+static void _uart_putc(u32 base, char c) {
+    while ((INBYTE(LSR(base)) & 0x20) == 0);
+    OUTBYTE(THR(base), c);
 }
 
 void uart_putc(char c) {
     if (c == '\n') {
-        uart_putc('\r');
+        _uart_putc(UART_BASE_2, '\r');
+        //_uart_putc(UART_BASE_2, '\r');
     }
-    while ((INBYTE(LSR(0)) & 0x20) == 0);
-    OUTBYTE(THR(0), c);
+    _uart_putc(UART_BASE_2, c);
+    //_uart_putc(UART_BASE_2, c);
 }
 
 void uart_puts(char *str) {

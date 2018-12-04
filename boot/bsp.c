@@ -2,8 +2,12 @@
 #include <types.h>
 #include <uart.h>
 #include <timer.h>
-#include <gic.h>
 #include <snprintf.h>
+
+#include <ti/board/board.h>
+#include <mmio.h>
+#include <gic.h>
+#include <mmc.h>
 
 extern void MyTask(void *p_arg);
 
@@ -13,8 +17,6 @@ INT8U Stk3[APP_TASK_START_STK_SIZE]  __attribute__ ((aligned (APP_TASK_START_STK
 INT8U Stk4[APP_TASK_START_STK_SIZE]  __attribute__ ((aligned (APP_TASK_START_STK_SIZE)));
 INT8U Stk5[APP_TASK_START_STK_SIZE]  __attribute__ ((aligned (APP_TASK_START_STK_SIZE)));
 
-extern void uart_test();
-
 int main() {
     char sTask1[] = "Task 1";
     char sTask2[] = "Task 2";
@@ -23,11 +25,25 @@ int main() {
     char sTask5[] = "Task 5";
 
     printf("OS Build: %s %s\n", __DATE__, __TIME__);
+
+    Board_initCfg boardCfg;
+    boardCfg = BOARD_INIT_UNLOCK_MMR | BOARD_INIT_UART_STDIO |
+               BOARD_INIT_MODULE_CLOCK | BOARD_INIT_PINMUX_CONFIG;
+    Board_init(boardCfg);
+
+    printf("Board_init done\n");
+
+//    char buf[512];
+//    mmc_init();
+
     gic_init();
-    printf("gic_init finished\n");
+    printf("gic_init done\n");
+
+    irq_init();
+    printf("irq_init done\n");
+
     timer_init();
     printf("timer_init finished\n");
-
     OS_CPU_SR_INT_En();
 
     OSInit();
@@ -58,14 +74,6 @@ int main() {
     while (1) {
         asm volatile ("nop");
     }
-}
-
-void OS_CPU_IntHandler(u32 src_id) {
-    //printf("%s\n", __FUNCTION__);
-    timer_clear_irq();
-    OSIntEnter();
-    OSTimeTick();
-    OSIntExit();
 }
 
 void OS_CPU_AbortHandler() {

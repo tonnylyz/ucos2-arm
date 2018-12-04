@@ -3,7 +3,7 @@
 #include <types.h>
 #include <mmio.h>
 
-#define GP_TIMER_BASE         0x48032000u //Timer 2
+#define GP_TIMER_BASE         KADDR(0x48032000u) //Timer 2
 
 #define GP_TIMER_TWPS      (GP_TIMER_BASE + 0x48u)
 

@@ -79,7 +79,6 @@ no_hyp:
     msr     CPSR_c, #Mode_SVC | I_Bit | F_Bit
 	ldr	pc, =main	@ jump to OS entry
 
-
 .align 12
 .globl __exc_vectors
 __exc_vectors:

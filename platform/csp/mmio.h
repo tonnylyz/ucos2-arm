@@ -3,6 +3,8 @@
 
 #include <types.h>
 
+#define KADDR(_) ((_) | 0x80000000u)
+
 static inline u32 mmio_read(u32 ptr) {
     u32 val;
     asm volatile("ldr %0, %1"

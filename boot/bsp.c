@@ -76,8 +76,47 @@ int main() {
     }
 }
 
-void OS_CPU_AbortHandler() {
+static inline u32 get_ifar() {
+    register u32 r;
+    asm volatile ("mrc p15, 0, %0, c6, c0, 2" : "=r"(r));
+    return r;
+}
+
+static inline u32 get_dfar() {
+    register u32 r;
+    asm volatile ("mrc p15, 0, %0, c6, c0, 0" : "=r"(r));
+    return r;
+}
+
+
+static inline u32 get_mpidr() {
+    register u32 r;
+    asm volatile ("mrc p15, 0, %0, c0, c0, 5" : "=r"(r));
+    return r;
+}
+
+static inline u8 get_cpuid() {
+    return (u8) (get_mpidr() & 0b11);
+}
+
+
+void OS_CPU_PrefetchAbortHandler() {
     printf("%s\n", __FUNCTION__);
+
+    printf("ifar: [%08x]\n", get_ifar());
+    printf("dfar: [%08x]\n", get_dfar());
+
+    while (1) {
+        asm volatile ("nop");
+    }
+}
+
+void OS_CPU_DataAbortHandler() {
+    printf("%s\n", __FUNCTION__);
+
+    printf("ifar: [%08x]\n", get_ifar());
+    printf("dfar: [%08x]\n", get_dfar());
+
     while (1) {
         asm volatile ("nop");
     }

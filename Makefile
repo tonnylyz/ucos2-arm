@@ -7,7 +7,7 @@
 # Cross Compile Toolchains
 ######################################
 BUILD_TOOL_CROSS := arm-none-eabi
-BUILD_TOOL_ROOT := /usr/local/gcc-arm-none-eabi
+BUILD_TOOL_ROOT := /home/tonny/ti/gcc-arm-none-eabi-6-2017-q1-update
 CROSS_COMPILE := $(BUILD_TOOL_CROSS)-
 
 AS		= $(BUILD_TOOL_ROOT)/bin/$(CROSS_COMPILE)as
@@ -49,7 +49,7 @@ TI_VENDOR_OBJS := lib/ti.board.aa15fg lib/ti.csl.init.aa15fg lib/ti.csl.aa15fg l
 all: zImage
 
 zImage: ucosii.a ucosii.lds $(TASK_OBJS)
-	$(LD) -o ucosii.axf $(LDFLAGS) --gc-sections -Bstatic --gc-sections --start-group --script=ucosii.lds $(TASK_OBJS) $(TI_VENDOR_OBJS) ucosii.a -nostdlib -Map=ucosii.map  -L$(BUILD_TOOL_ROOT)/lib/gcc/$(BUILD_TOOL_CROSS)/7.3.1/hard -lgcc
+	$(LD) -o ucosii.axf $(LDFLAGS) --gc-sections -Bstatic --gc-sections --start-group --script=ucosii.lds $(TASK_OBJS) $(TI_VENDOR_OBJS) ucosii.a -nostdlib -Map=ucosii.map  -L$(BUILD_TOOL_ROOT)/lib/gcc/$(BUILD_TOOL_CROSS)/6.3.1/hard -lgcc
 	$(OBJCOPY) -O binary -R .note -R .comment -S ucosii.axf zImage
 
 ucosii.a: $(BSP_OBJS) $(PLATFORM_OBJS) $(UCOSII_OBJS)

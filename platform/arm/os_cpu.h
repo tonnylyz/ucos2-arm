@@ -265,8 +265,6 @@ void       OSCtxSw                            (void);
 void       OSIntCtxSw                         (void);
 void       OSStartHighRdy                     (void);
 
-void       OS_CPU_InitExceptVect              (void);
-
 void       OS_CPU_ARM_ExceptUndefInstrHndlr   (void);
 void       OS_CPU_ARM_ExceptSwiHndlr          (void);
 void       OS_CPU_ARM_ExceptPrefetchAbortHndlr(void);

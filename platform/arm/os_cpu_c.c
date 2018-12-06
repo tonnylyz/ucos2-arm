@@ -567,39 +567,6 @@ void  OS_CPU_IntDisMeasStop (void)
 #endif
 
 
-/*$PAGE*/
-/*
-*********************************************************************************************************
-*                                    INITIALIZE EXCEPTION VECTORS
-*
-* Description: This function initialize exception vectors to the default handlers.
-*
-* Arguments  : None.
-*********************************************************************************************************
-*/
-
-void  OS_CPU_InitExceptVect (void)
-{
-    (*(INT32U *)OS_CPU_ARM_EXCEPT_VECT_ADDR_RST)               =           OS_CPU_ARM_INSTR_JUMP_TO_HANDLER;
-    (*(INT32U *)OS_CPU_ARM_EXCEPT_HANDLER_ADDR_UND)            = (INT32U)OS_CPU_ARM_ExceptUndefInstrHndlr;
-
-    (*(INT32U *)OS_CPU_ARM_EXCEPT_VECT_ADDR_SWI)               =           OS_CPU_ARM_INSTR_JUMP_TO_HANDLER;
-    (*(INT32U *)OS_CPU_ARM_EXCEPT_HANDLER_ADDR_SWI)            = (INT32U)OS_CPU_ARM_ExceptSwiHndlr;
-
-    (*(INT32U *)OS_CPU_ARM_EXCEPT_VECT_ADDR_ABORT_PREFETCH)    =           OS_CPU_ARM_INSTR_JUMP_TO_HANDLER;
-    (*(INT32U *)OS_CPU_ARM_EXCEPT_HANDLER_ADDR_ABORT_PREFETCH) = (INT32U)OS_CPU_ARM_ExceptPrefetchAbortHndlr;
-
-    (*(INT32U *)OS_CPU_ARM_EXCEPT_VECT_ADDR_ABORT_DATA)        =           OS_CPU_ARM_INSTR_JUMP_TO_HANDLER;
-    (*(INT32U *)OS_CPU_ARM_EXCEPT_HANDLER_ADDR_ABORT_DATA)     = (INT32U)OS_CPU_ARM_ExceptDataAbortHndlr;
-
-    (*(INT32U *)OS_CPU_ARM_EXCEPT_VECT_ADDR_IRQ)               =           OS_CPU_ARM_INSTR_JUMP_TO_HANDLER;
-    (*(INT32U *)OS_CPU_ARM_EXCEPT_HANDLER_ADDR_IRQ)            = (INT32U)OS_CPU_ARM_ExceptIrqHndlr;
-
-    (*(INT32U *)OS_CPU_ARM_EXCEPT_VECT_ADDR_FIQ)               =           OS_CPU_ARM_INSTR_JUMP_TO_HANDLER;
-    (*(INT32U *)OS_CPU_ARM_EXCEPT_HANDLER_ADDR_FIQ)            = (INT32U)OS_CPU_ARM_ExceptFiqHndlr;
-}
-
-
 /*
 *********************************************************************************************************
 *                              GET NUMBER OF FREE ENTRIES IN EXCEPTION STACK

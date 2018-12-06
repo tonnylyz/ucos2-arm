@@ -93,8 +93,8 @@ __exc_vectors:
 .align 2
 Undefined_Addr:	 .word     OS_CPU_UndefHandler //OS_CPU_ARM_ExceptUndefInstrHndlr
 SVC_Addr:        .word     OS_CPU_ARM_ExceptSwiHndlr
-Prefetch_Addr:   .word     OS_CPU_AbortHandler //OS_CPU_ARM_ExceptPrefetchAbortHndlr
-Abort_Addr:      .word     OS_CPU_AbortHandler //OS_CPU_ARM_ExceptDataAbortHndlr
+Prefetch_Addr:   .word     OS_CPU_PrefetchAbortHandler //OS_CPU_ARM_ExceptPrefetchAbortHndlr
+Abort_Addr:      .word     OS_CPU_DataAbortHandler //OS_CPU_ARM_ExceptDataAbortHndlr
 IRQ_Addr:        .word     OS_CPU_ARM_ExceptIrqHndlr
 FIQ_Addr:        .word     OS_CPU_ARM_ExceptFiqHndlr
 

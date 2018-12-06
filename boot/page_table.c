@@ -65,7 +65,9 @@ void page_table_init() {
          vaddr < 0xc0000000;
          vaddr += BSP_PAGETABLE_L1_SECT_SIZE, paddr += BSP_PAGETABLE_L1_SECT_SIZE) {
         pt_phys[BSP_PAGETABLE_VADDR_TO_L1_INDEX(vaddr)] = paddr | (3 << 10) | (0xf << 5) | 2;
-                                                              //  AP = 0b11   Domain=0xf   Section
+                                                              //  AP[2] = 0
+                                                              //  AP[1] = 1
+                                                              //  AP[0] = 1
     }
 
     for (paddr = 0x40000000, vaddr = 0xc0000000;

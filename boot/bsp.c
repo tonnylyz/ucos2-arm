@@ -24,13 +24,13 @@ int main() {
     char sTask4[] = "Task 4";
     char sTask5[] = "Task 5";
 
-    printf("OS Build: %s %s\n", __DATE__, __TIME__);
 
     Board_initCfg boardCfg;
     boardCfg = BOARD_INIT_UNLOCK_MMR | BOARD_INIT_UART_STDIO |
                BOARD_INIT_MODULE_CLOCK | BOARD_INIT_PINMUX_CONFIG;
     Board_init(boardCfg);
 
+    printf("OS Build: %s %s\n", __DATE__, __TIME__);
     printf("Board_init done\n");
 
 //    char buf[512];

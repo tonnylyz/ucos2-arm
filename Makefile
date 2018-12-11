@@ -32,7 +32,7 @@ BSP_OBJS := boot/bsp.o boot/page_table.o boot/start.o
 
 # Platform Specified Objects
 PLATFORM_OBJS := platform/arm/os_cpu_c.o platform/arm/os_cpu_a.o \
-                 platform/csp/timer.o platform/csp/uart.o platform/csp/gic.o platform/csp/mmc.o
+                 platform/csp/timer.o platform/csp/uart.o platform/csp/gic.o platform/csp/mmc.o platform/csp/dsp.o
 
 # uC/OS-II Kernel Objects
 UCOSII_OBJS := kernel/os_core.o  kernel/os_flag.o kernel/os_mbox.o kernel/os_mem.o \

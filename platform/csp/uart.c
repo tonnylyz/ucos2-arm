@@ -8,8 +8,6 @@
 #define UC_UART_THR(base)  (base + 0x00)
 #define UC_UART_LSR(base)  (base + 0x14)
 
-
-
 static void _uart_putc(u32 base, char c) {
     while ((mmio_readb(UC_UART_LSR(base)) & 0x20) == 0);
     mmio_writeb(UC_UART_THR(base), (u8)c);
@@ -75,27 +73,8 @@ void _uart_init(uint32_t baseAddr, uint32_t baudRate,
     UARTOperatingModeSelect(baseAddr, mode);
 }
 
-void uart2_init() {
-
-    CSL_l4per_cm_core_componentRegs *l4PerCmReg =
-            (CSL_l4per_cm_core_componentRegs *) CSL_MPU_L4PER_CM_CORE_REGS;
-
-    CSL_FINST(l4PerCmReg->CM_L4PER_UART2_CLKCTRL_REG,
-              L4PER_CM_CORE_COMPONENT_CM_L4PER_UART2_CLKCTRL_REG_MODULEMODE, ENABLE);
-
-    while(CSL_L4PER_CM_CORE_COMPONENT_CM_L4PER_UART2_CLKCTRL_REG_IDLEST_FUNC !=
-          CSL_FEXT(l4PerCmReg->CM_L4PER_UART2_CLKCTRL_REG,
-                   L4PER_CM_CORE_COMPONENT_CM_L4PER_UART2_CLKCTRL_REG_IDLEST));
-
-    _uart_init(UART_BASE_2, 115200, UART_FRAME_WORD_LENGTH_8, UART_FRAME_NUM_STB_1, UART_PARITY_NONE, UART16x_OPER_MODE);
-
-}
-
-void uart2_putc(char c) {
-    if (c == '\n') {
-        _uart_putc(UART_BASE_2, '\r');
-    }
-    _uart_putc(UART_BASE_2, c);
+void uart1_init() {
+    _uart_init(UART_BASE_1, 115200, UART_FRAME_WORD_LENGTH_8, UART_FRAME_NUM_STB_1, UART_PARITY_NONE, UART16x_OPER_MODE);
 }
 
 void uart_putc(char c) {

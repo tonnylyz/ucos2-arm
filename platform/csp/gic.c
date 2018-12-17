@@ -2,6 +2,7 @@
 #include "types.h"
 #include "mmio.h"
 #include "timer.h"
+#include "dsp.h"
 
 #include <ti/csl/csl_a15.h>
 #include <ti/csl/arch/a15/csl_a15_startup.h>
@@ -43,16 +44,24 @@ void gic_init() {
     CSL_armGicInit(&gCpuIntrf);
 }
 
-const int TIMER2_IRQ_ID = 70;
+#define IRQ_DSP1_MMU    60
+#define IRQ_TIMER2      70
 
 void irq_init() {
-    CSL_armGicEnableIntr(&gCpuIntrf, TIMER2_IRQ_ID);
-    //mmio_write(0x4a002a4c, 0); // crossbar setting: disable firewall error irq
+    u32 i;
+    for (i = 32; i < 192; i++) {
+        if (i == 40) continue;
+        CSL_armGicEnableIntr(&gCpuIntrf, i);
+    }
 }
 
 void OS_CPU_IntHandler(u32 src_id) {
     uint32_t irq_num = IntGetPendingIntNum();
-    if (irq_num != TIMER2_IRQ_ID) {
+    if (irq_num == IRQ_TIMER2) {
+
+    } else if (irq_num == IRQ_DSP1_MMU) {
+        dsp1_mmu_debug();
+    } else {
         printf("Unexpected IRQ: %d\n", irq_num);
         while (1) {
             asm volatile ("nop");

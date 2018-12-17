@@ -8,6 +8,7 @@
 #include <mmio.h>
 #include <gic.h>
 #include <mmc.h>
+#include <dsp.h>
 
 extern void MyTask(void *p_arg);
 
@@ -33,8 +34,11 @@ int main() {
     printf("OS Build: %s %s\n", __DATE__, __TIME__);
     printf("Board_init done\n");
 
-//    char buf[512];
-//    mmc_init();
+    uart1_init();
+    printf("uart1_init done\n");
+
+    dsp1_start_core();
+    printf("dsp1_start_core done\n");
 
     gic_init();
     printf("gic_init done\n");

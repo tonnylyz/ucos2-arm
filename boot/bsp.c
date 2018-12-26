@@ -19,6 +19,7 @@ INT8U Stk4[APP_TASK_START_STK_SIZE]  __attribute__ ((aligned (APP_TASK_START_STK
 INT8U Stk5[APP_TASK_START_STK_SIZE]  __attribute__ ((aligned (APP_TASK_START_STK_SIZE)));
 
 int main() {
+
     char sTask1[] = "Task 1";
     char sTask2[] = "Task 2";
     char sTask3[] = "Task 3";
@@ -39,6 +40,10 @@ int main() {
 
     dsp1_start_core();
     printf("dsp1_start_core done\n");
+
+    while (1) {
+        asm volatile ("nop");
+    }
 
     gic_init();
     printf("gic_init done\n");

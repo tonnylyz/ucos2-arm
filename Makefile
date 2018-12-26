@@ -44,16 +44,16 @@ TI_VENDOR_OBJS := lib/ti.board.aa15fg lib/ti.csl.init.aa15fg lib/ti.csl.aa15fg l
 # Targets
 ######################################
 
-.PHONY: all clean
+.PHONY: all clean burn
 
 all: zImage
 
 zImage: ucosii.a ucosii.lds $(TASK_OBJS)
-	$(LD) -o ucosii.axf $(LDFLAGS) --gc-sections -Bstatic --gc-sections --start-group --script=ucosii.lds $(TASK_OBJS) $(TI_VENDOR_OBJS) ucosii.a -nostdlib -Map=ucosii.map  -L$(BUILD_TOOL_ROOT)/lib/gcc/$(BUILD_TOOL_CROSS)/6.3.1/hard -lgcc
+	$(LD) -o ucosii.axf $(LDFLAGS) --gc-sections -Bstatic --gc-sections --start-group --script=ucosii.lds $(TI_VENDOR_OBJS) ucosii.a -nostdlib -Map=ucosii.map  -L$(BUILD_TOOL_ROOT)/lib/gcc/$(BUILD_TOOL_CROSS)/6.3.1/hard -lgcc
 	$(OBJCOPY) -O binary -R .note -R .comment -S ucosii.axf zImage
 
-ucosii.a: $(BSP_OBJS) $(PLATFORM_OBJS) $(UCOSII_OBJS)
-	$(AR) -r $@ $(BSP_OBJS) $(PLATFORM_OBJS) $(UCOSII_OBJS) $(TI_VENDOR_OBJS)
+ucosii.a: $(BSP_OBJS) $(PLATFORM_OBJS) $(UCOSII_OBJS) $(TASK_OBJS)
+	$(AR) -r $@ $(BSP_OBJS) $(PLATFORM_OBJS) $(UCOSII_OBJS) $(TASK_OBJS)
 
 
 clean:
@@ -74,5 +74,10 @@ $(OBJ_DIR)/%.o: %.c
 $(OBJ_DIR):
 	$(MKDIR) $(OBJ_DIR)
 
+burn: zImage
+	cp zImage /media/tonny/BOOT/zImage
+	sync
+	umount /dev/sdc1
+	udisksctl power-off -b /dev/sdc
 
 INCLUDES = -Iboot -Ikernel -Ilib -Iplatform/arm -Iplatform/csp -Itask -Iplatform/csl -I/home/tonny/ti/pdk_am57xx_1_0_12/packages

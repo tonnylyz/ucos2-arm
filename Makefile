@@ -6,9 +6,10 @@
 
 # Cross Compile Toolchains
 ######################################
-BUILD_TOOL_CROSS := arm-none-eabi
-BUILD_TOOL_ROOT := /home/tonny/ti/gcc-arm-none-eabi-6-2017-q1-update
+BUILD_TOOL_CROSS := arm-eabi
+BUILD_TOOL_ROOT := /home/tonny/gcc-linaro-7.4.1-2019.02-x86_64_arm-eabi
 CROSS_COMPILE := $(BUILD_TOOL_CROSS)-
+LIBGCC_HARD := -L$(BUILD_TOOL_ROOT)/lib/gcc/arm-eabi/7.4.1/v7-a/fpv3/hard -lgcc
 
 AS		= $(BUILD_TOOL_ROOT)/bin/$(CROSS_COMPILE)as
 LD		= $(BUILD_TOOL_ROOT)/bin/$(CROSS_COMPILE)ld
@@ -46,18 +47,18 @@ TI_VENDOR_OBJS := lib/ti.board.aa15fg lib/ti.csl.init.aa15fg lib/ti.csl.aa15fg l
 
 .PHONY: all clean burn
 
-all: zImage
+all: uImage
 
-zImage: ucosii.a ucosii.lds $(TASK_OBJS)
-	$(LD) -o ucosii.axf $(LDFLAGS) --gc-sections -Bstatic --gc-sections --start-group --script=ucosii.lds $(TI_VENDOR_OBJS) ucosii.a -nostdlib -Map=ucosii.map  -L$(BUILD_TOOL_ROOT)/lib/gcc/$(BUILD_TOOL_CROSS)/6.3.1/hard -lgcc
-	$(OBJCOPY) -O binary -R .note -R .comment -S ucosii.axf zImage
+uImage: ucosii.a ucosii.lds $(TASK_OBJS)
+	$(LD) -o ucosii.axf $(LDFLAGS) --gc-sections -Bstatic --gc-sections --start-group --script=ucosii.lds $(TI_VENDOR_OBJS) ucosii.a -nostdlib -Map=ucosii.map $(LIBGCC_HARD)
+	$(OBJCOPY) -O binary -R .note -R .comment -S ucosii.axf uImage
 
 ucosii.a: $(BSP_OBJS) $(PLATFORM_OBJS) $(UCOSII_OBJS) $(TASK_OBJS)
 	$(AR) -r $@ $(BSP_OBJS) $(PLATFORM_OBJS) $(UCOSII_OBJS) $(TASK_OBJS)
 
 
 clean:
-	$(RM) $(TASK_OBJS) $(BSP_OBJS) $(PLATFORM_OBJS) $(UCOSII_OBJS) ucosii.axf ucosii.a zImage -f
+	$(RM) $(TASK_OBJS) $(BSP_OBJS) $(PLATFORM_OBJS) $(UCOSII_OBJS) ucosii.axf ucosii.a ucosii.map uImage -f
 
 %.o: %.S
 	$(CC) $(CFLAGS) $(INCLUDES) -o $@ $<
@@ -74,10 +75,18 @@ $(OBJ_DIR)/%.o: %.c
 $(OBJ_DIR):
 	$(MKDIR) $(OBJ_DIR)
 
-burn: zImage
-	cp zImage /media/tonny/BOOT/zImage
+burn: uImage
+	cp uImage /media/tonny/BOOT/uImage
 	sync
 	umount /dev/sdc1
 	udisksctl power-off -b /dev/sdc
 
-INCLUDES = -Iboot -Ikernel -Ilib -Iplatform/arm -Iplatform/csp -Itask -Iplatform/csl -I/home/tonny/ti/pdk_am57xx_1_0_12/packages
+win:
+	sudo mount -t drvfs e: /mnt/e
+	cp uImage /mnt/e/uImage
+	sync
+	sleep 1
+	sudo umount /mnt/e
+	RemoveDrive.exe e: -L
+
+INCLUDES = -Iboot -Ikernel -Ilib -Iplatform/arm -Iplatform/csp -Itask -Iplatform/csl -I/home/tonny/ti/pdk_am57xx_1_0_14/packages

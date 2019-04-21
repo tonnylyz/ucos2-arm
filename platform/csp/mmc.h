@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-int mmc_init();
+void mmc_init();
 
 int mmc_read_sector(u32 sector, char *buf);
 

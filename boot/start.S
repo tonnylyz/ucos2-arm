@@ -13,18 +13,7 @@
 #define F_Bit    0x40 
 		
 		
-start:	
-.rept	7
-    nop
-.endr
-    mov r0, r0
-    b reset
-.word	0x016f2818 // _magic_sig
-.word	_magic_start
-.word	_magic_end
-.word	0x04030201
-
-reset:
+start:
     //cpsid if // mask irq & fiq
 
 /* Check for HYP mode */
@@ -82,7 +71,7 @@ no_hyp:
 .align 12
 .globl __exc_vectors
 __exc_vectors:
-	    B	reset
+	    B	start
         LDR     PC, Undefined_Addr
         LDR     PC, SVC_Addr
         LDR     PC, Prefetch_Addr

@@ -10,7 +10,11 @@
 
 #include <mmio.h>
 
-static uint32_t baseAddress = KADDR(CSL_MPU_MMC2_REGS);
+/* Note:
+ *  MMC1 -> removeable SD card, SDHC is addressing by block/sector (need NO initialization)
+ *  MMC2 -> internal EMMC (NEED initialization)
+ * */
+static uint32_t baseAddress = KADDR(CSL_MPU_MMC1_REGS);
 #define BUFFER_SIZE    (512)
 #define BIT(x) (1 << x)
 #define SD_CMD(x)   (x)
@@ -45,89 +49,6 @@ uint32_t hsmmcsd_dataLen = 0;
 uint32_t hsmmcsd_blockSize = 0;
 volatile uint8_t *hsmmcsd_buffer = 0;
 uint32_t hsmmcsd_cid[4], hsmmcsd_rca, hsmmcsd_csd[4];
-
-static void delay(uint32_t delay) {
-    volatile uint32_t i;
-    for (i = 0; i < (1000 * delay); ++i);
-}
-
-void padConfig_prcmEnable() {
-    /*Pad configurations */
-    Board_initCfg boardCfg;
-    boardCfg = BOARD_INIT_UNLOCK_MMR | BOARD_INIT_UART_STDIO |
-               BOARD_INIT_MODULE_CLOCK | BOARD_INIT_PINMUX_CONFIG;
-    Board_init(boardCfg);
-    /*Pad configurations */
-    HW_WR_REG32(CSL_MPU_CORE_PAD_IO_REGISTERS_REGS + CSL_CONTROL_CORE_PAD_IO_PAD_GPMC_A19, 0x60001);
-    HW_WR_REG32(CSL_MPU_CORE_PAD_IO_REGISTERS_REGS + CSL_CONTROL_CORE_PAD_IO_PAD_GPMC_A20, 0x60001);
-    HW_WR_REG32(CSL_MPU_CORE_PAD_IO_REGISTERS_REGS + CSL_CONTROL_CORE_PAD_IO_PAD_GPMC_A21, 0x60001);
-    HW_WR_REG32(CSL_MPU_CORE_PAD_IO_REGISTERS_REGS + CSL_CONTROL_CORE_PAD_IO_PAD_GPMC_A22, 0x60001);
-    HW_WR_REG32(CSL_MPU_CORE_PAD_IO_REGISTERS_REGS + CSL_CONTROL_CORE_PAD_IO_PAD_GPMC_A23, 0x40001);
-    HW_WR_REG32(CSL_MPU_CORE_PAD_IO_REGISTERS_REGS + CSL_CONTROL_CORE_PAD_IO_PAD_GPMC_A24, 0x60001);
-    HW_WR_REG32(CSL_MPU_CORE_PAD_IO_REGISTERS_REGS + CSL_CONTROL_CORE_PAD_IO_PAD_GPMC_A25, 0x60001);
-    HW_WR_REG32(CSL_MPU_CORE_PAD_IO_REGISTERS_REGS + CSL_CONTROL_CORE_PAD_IO_PAD_GPMC_A26, 0x60001);
-    HW_WR_REG32(CSL_MPU_CORE_PAD_IO_REGISTERS_REGS + CSL_CONTROL_CORE_PAD_IO_PAD_GPMC_A27, 0x60001);
-    HW_WR_REG32(CSL_MPU_CORE_PAD_IO_REGISTERS_REGS + CSL_CONTROL_CORE_PAD_IO_PAD_GPMC_CS1, 0x60001);
-}
-#define CTRL_CORE_CONTROL_PBIAS                         CSL_CONTROL_CORE_PAD_CONTROL_PBIAS
-#define CTRL_CORE_CONTROL_PBIAS_SDCARD_BIAS_PWRDNZ_MASK CSL_CONTROL_CORE_PAD_CONTROL_PBIAS_SDCARD_BIAS_PWRDNZ_MASK
-#define CTRL_CORE_CONTROL_PBIAS_SDCARD_IO_PWRDNZ_MASK   CSL_CONTROL_CORE_PAD_CONTROL_PBIAS_SDCARD_IO_PWRDNZ_MASK
-#define CTRL_CORE_CONTROL_PBIAS_SDCARD_BIAS_VMODE_MASK  CSL_CONTROL_CORE_PAD_CONTROL_PBIAS_SDCARD_BIAS_VMODE_MASK
-
-void MMCSD_LDO_PWR() {
-    /*CTRL_CORE_CONTROL_PBIAS*/
-
-    uint32_t reg_val = 0;
-
-    reg_val = HW_RD_REG32(
-            SOC_CTRL_MODULE_CORE_CORE_PAD_REGISTERS_BASE + CTRL_CORE_CONTROL_PBIAS);
-
-    reg_val &= ~CTRL_CORE_CONTROL_PBIAS_SDCARD_IO_PWRDNZ_MASK;
-    HW_WR_REG32(SOC_CTRL_MODULE_CORE_CORE_PAD_REGISTERS_BASE +
-                CTRL_CORE_CONTROL_PBIAS, reg_val);
-    delay(10); /* wait 10 us */
-    reg_val &= ~CTRL_CORE_CONTROL_PBIAS_SDCARD_BIAS_PWRDNZ_MASK;
-    HW_WR_REG32(SOC_CTRL_MODULE_CORE_CORE_PAD_REGISTERS_BASE +
-                CTRL_CORE_CONTROL_PBIAS, reg_val);
-
-    /*Enable SDCARD_BIAS_VMODE*/
-    reg_val |= CTRL_CORE_CONTROL_PBIAS_SDCARD_BIAS_VMODE_MASK; /* 3v */
-    HW_WR_REG32(SOC_CTRL_MODULE_CORE_CORE_PAD_REGISTERS_BASE +
-                CTRL_CORE_CONTROL_PBIAS, reg_val);
-
-    reg_val = HW_RD_REG32(
-            SOC_CTRL_MODULE_CORE_CORE_PAD_REGISTERS_BASE + CTRL_CORE_CONTROL_PBIAS);
-    reg_val |= CTRL_CORE_CONTROL_PBIAS_SDCARD_BIAS_PWRDNZ_MASK;
-    HW_WR_REG32(SOC_CTRL_MODULE_CORE_CORE_PAD_REGISTERS_BASE +
-                CTRL_CORE_CONTROL_PBIAS, reg_val);
-    delay(150); /* wait 10 us */
-
-    reg_val |= CTRL_CORE_CONTROL_PBIAS_SDCARD_IO_PWRDNZ_MASK;
-    HW_WR_REG32(SOC_CTRL_MODULE_CORE_CORE_PAD_REGISTERS_BASE +
-                CTRL_CORE_CONTROL_PBIAS, reg_val);
-
-    delay(150); /* wait 10 us */
-}
-
-/* MMC module enable functions */
-int32_t mmc2init(void) {
-    uint32_t tmpRegVal;
-    /*MMC2- CM_L3INIT_MMC2_CLKCTRL */
-    tmpRegVal = HW_RD_REG32(SOC_L3INIT_CM_CORE_BASE + CM_L3INIT_MMC2_CLKCTRL);
-    tmpRegVal |= 0x03000000;
-    HW_WR_REG32(SOC_L3INIT_CM_CORE_BASE + CM_L3INIT_MMC2_CLKCTRL, tmpRegVal);
-
-    MMCSD_LDO_PWR();
-
-    /*MMC1 PAD Configuration*/
-    padConfig_prcmEnable();
-
-    /*Enable the module - mmc2  */
-    HW_WR_FIELD32_RAW(0x4A009330, 0x00000003U, 0U, 0x02U);
-
-    return STW_SOK;
-}
-
 
 /* MMCSD Host Controller Functions */
 static int32_t mmcHostCtrlInit(void) {
@@ -436,18 +357,22 @@ int32_t MMCSDCardInit(void) {
     return STW_SOK;
 }
 
-int mmc_init() {
-    int32_t retVal = STW_SOK;
-    retVal = mmc2init();
-    retVal += mmcHostCtrlInit();
-    if (retVal == STW_SOK) {
-        printf("\nmmc Host Ctrl init Done.\n");
-        retVal = MMCSDCardInit();
+#define panic(_) do { printf(_); while (1) { asm(" NOP"); }  } while(0)
+
+void mmc_init() {
+    /* Note:
+     *  Do not mmc_init CSL_MPU_MMC1_REGS!
+     *  MMC1 has been initialized in SPL.
+     * */
+    int32_t r;
+    r = mmcHostCtrlInit();
+    if (r != STW_SOK) {
+        panic("mmcHostCtrlInit failed");
     }
-    if (retVal == STW_SOK) {
-        printf("mmc_init done\n");
+    r = MMCSDCardInit();
+    if (r != STW_SOK) {
+        panic("MMCSDCardInit failed");
     }
-    return retVal;
 }
 
 int mmc_read_sector(u32 sector, char *buf) {
@@ -456,7 +381,7 @@ int mmc_read_sector(u32 sector, char *buf) {
     HSMMCSDXferSetup(1, buf, 1);
     cmd.idx   = SD_CMD(17);
     cmd.flags = SD_CMDRSP_READ | SD_CMDRSP_DATA;
-    cmd.arg   = sector * hsmmcsd_blockSize;
+    cmd.arg   = sector;
     cmd.nblks = 1;
     status    = HSMMCSDCmdSend(&cmd);
     HSMMCSDXferStatusGet();

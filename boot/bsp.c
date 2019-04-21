@@ -32,14 +32,13 @@ int main() {
                BOARD_INIT_MODULE_CLOCK | BOARD_INIT_PINMUX_CONFIG;
     Board_init(boardCfg);
 
-    printf("OS Build: %s %s\n", __DATE__, __TIME__);
+    printf("ARM OS Build: %s %s\n", __DATE__, __TIME__);
     printf("Board_init done\n");
 
-    uart1_init();
-    printf("uart1_init done\n");
-
+    //mmc_init();
+    printf("Ready to start DSP 1\n");
+    printf("====================\n");
     dsp1_start_core();
-    printf("dsp1_start_core done\n");
 
     while (1) {
         asm volatile ("nop");

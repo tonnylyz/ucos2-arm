@@ -30,8 +30,12 @@ void dsp_mem_map_16m(u32 pgtable_base, u32 va, u32 pa) {
 }
 
 static void dsp_pgtable_init() {
-    dsp_mem_map_1m(DSP1_L1_PGTABLE, 0x95000000, 0x99000000);
-    dsp_mem_map_1m(DSP1_L1_PGTABLE, 0x95100000, 0x99100000);
+    /* Note:
+     *  Directly map 0x9500_0000 ~ 0x9600_0000 (16MB) for both DSP 1/2
+     *  DSP 1/2 use uniformed memory layout and same kernel image
+     * */
+
+    dsp_mem_map_16m(DSP1_L1_PGTABLE, 0x95000000, 0x95000000);
 
     dsp_mem_map_16m(DSP1_L1_PGTABLE, 0x4a000000, 0x4a000000);
 
@@ -53,8 +57,7 @@ static void dsp_pgtable_init() {
     dsp_mem_map_1m(DSP1_L1_PGTABLE, 0x48f00000, 0x48f00000);
 
 
-    dsp_mem_map_1m(DSP2_L1_PGTABLE, 0x95000000, 0x9f000000);
-    dsp_mem_map_1m(DSP2_L1_PGTABLE, 0x95100000, 0x9f100000);
+    dsp_mem_map_16m(DSP2_L1_PGTABLE, 0x95000000, 0x95000000);
 
     dsp_mem_map_16m(DSP2_L1_PGTABLE, 0x4a000000, 0x4a000000);
 
@@ -101,26 +104,6 @@ void dsp1_mmu_debug() {
     printf("DSP1_MMU_FAULT_PC %08x\n", mmio_read(DSP1_MMU_FAULT_PC));
     printf("DSP1_MMU_FAULT_AD %08x\n", mmio_read(DSP1_MMU_FAULT_AD));
     printf("DSP1_MMU_FAULT_STATUS %08x\n", mmio_read(DSP1_MMU_FAULT_STATUS));
-
-    printf("Dumping page table...\n");
-    u32 *pgtable = (u32 *)DSP1_L1_PGTABLE;
-    u32 i;
-    for (i = 0; i < 8192; i++) {
-        if (pgtable[i] != 0) {
-            printf("[%08x] -> [%08x]\n", i, pgtable[i]);
-        }
-    }
-    printf("page table dumped ok!\n");
-
-    printf("Dumping context...\n");
-    u32 *text = (u32 *)(0x99000000);
-    for (i = 0; i < 128; i++) {
-        if (text[i] != 0) {
-            printf("[%08x] -> [%08x]\n", i, text[i]);
-        }
-    }
-    printf("context dumped ok!\n");
-
     while (1) {
         asm volatile ("nop");
     }

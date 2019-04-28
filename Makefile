@@ -3,6 +3,10 @@
 # Author: New Type OS Research Group
 #############################################################
 
+# PDK
+######################################
+PDK_INCLUDE := -I/mnt/c/ti/pdk_am57xx_1_0_14/packages
+
 
 # Cross Compile Toolchains
 ######################################
@@ -89,4 +93,4 @@ win:
 	sudo umount /mnt/e
 	RemoveDrive.exe e: -L
 
-INCLUDES = -Iboot -Ikernel -Ilib -Iplatform/arm -Iplatform/csp -Itask -Iplatform/csl -I/home/tonny/ti/pdk_am57xx_1_0_14/packages
+INCLUDES = -Iboot -Ikernel -Ilib -Iplatform/arm -Iplatform/csp -Itask -Iplatform/csl $(PDK_INCLUDE)

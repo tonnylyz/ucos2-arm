@@ -1,11 +1,9 @@
 #include "mmc.h"
 #include "types.h"
 
-#include <ti/csl/csl_mmcsd.h>
 #include <ti/board/board.h>
+#include <ti/csl/csl_mmcsd.h>
 #include <ti/csl/soc.h>
-#include <ti/csl/soc/am572x/src/cslr_soc_mpu_baseaddress.h>
-#include <ti/csl/soc/am572x/src/cslr_soc_aliases.h>
 #include <snprintf.h>
 
 #include <mmio.h>

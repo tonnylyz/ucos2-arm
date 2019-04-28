@@ -7,7 +7,6 @@ ucosii.map
 zImage
 
 cmake-build-debug/*
-CMakeLists.txt
 
 .DS_Store
 ._.DS_Store

@@ -35,6 +35,7 @@ int main() {
     printf("ARM OS Build: %s %s\n", __DATE__, __TIME__);
     printf("Board_init done\n");
 
+    uart1_init();
     //mmc_init();
     printf("Ready to start DSP 1\n");
     printf("====================\n");

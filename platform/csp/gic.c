@@ -4,11 +4,8 @@
 #include "timer.h"
 #include "dsp.h"
 
-#include <ti/csl/csl_a15.h>
 #include <ti/csl/arch/a15/csl_a15_startup.h>
 #include <ti/csl/soc.h>
-#include <ti/csl/soc/am572x/src/cslr_soc.h>
-#include <ti/csl/soc/am572x/src/cslr_soc_aliases.h>
 #include <snprintf.h>
 #include <ucos_ii.h>
 
